@@ -14,7 +14,7 @@
 
   ➤ string.h
 
-[] Fix [strtoi] so it works with negative numbers.
+[✓] Fix [strtoi] so it works with negative numbers.
 [] strcpy()
 [] strncpy()
 [] strcmp()
@@ -25,6 +25,20 @@
 [] strrchr()
 [] strtok()
 
+
+  ➤ stdio.h
+
+[] Implement [printf] with [_fspec].
+
+
+┏━━━━━━━━━━━━┓
+┃ Code Style ┃
+┗━━━━━━━━━━━━┛
+
+  ➤ General
+
+[] Decide on pointer binding direction (and actually use it).
+
 ┏━━━━━━━━━━━━━━━┓
 ┃ Documentation ┃
 ┗━━━━━━━━━━━━━━━┛
@@ -33,4 +47,3 @@
 
 [] Create documentation directory structure.
 [] Decide on documentation format.
-[] 

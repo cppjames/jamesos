@@ -20,7 +20,8 @@ size_t strlen(const char*);
 
 size_t itostr(uint8_t [], int32_t, size_t);
 
-int32_t strtoi(uint8_t [], size_t);
+int32_t strtoi(const char [], size_t);
+uint32_t strtou(const char [], size_t);
 
 #ifdef __cplusplus
 }

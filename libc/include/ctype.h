@@ -30,7 +30,7 @@ inline bool isalnum(char c) {
 	return isdigit(c) || isalpha(c);
 }
 
-bool isspace(char c) {
+inline bool isspace(char c) {
 	return c == ' ' 	||
 		   c == '\f'	||
 		   c == '\r'	||

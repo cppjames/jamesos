@@ -33,6 +33,7 @@ string/memmove.o \
 string/memset.o \
 string/strlen.o \
 string/strtoi.o \
+string/strtou.o \
 
 OBJS=\
 $(FREEOBJS)
