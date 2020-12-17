@@ -1,0 +1,36 @@
+┏━━━━━━━━━━━━━━━━━━┓
+┃ Standard Library ┃
+┗━━━━━━━━━━━━━━━━━━┛
+
+  ➤ string.h
+  
+[] isprint()
+[] iscntrl()
+[] isgraph()
+[] isxdigit()
+[] isblank()
+[] ispunct()
+
+
+  ➤ string.h
+
+[] Fix [strtoi] so it works with negative numbers.
+[] strcpy()
+[] strncpy()
+[] strcmp()
+[] strncmp()
+[] strcat()
+[] strncat()
+[] strstr()
+[] strrchr()
+[] strtok()
+
+┏━━━━━━━━━━━━━━━┓
+┃ Documentation ┃
+┗━━━━━━━━━━━━━━━┛
+
+  ➤ General
+
+[] Create documentation directory structure.
+[] Decide on documentation format.
+[] 
