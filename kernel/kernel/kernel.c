@@ -27,16 +27,16 @@ void kernel_main(struct stivale2_struct *info) {
 	terminal_initialize();
 
     printf("[%d]", printf("%s", "Decimal, fw 7, left\n"));
-	printf("[%d]", printf("56        |%-7d|\n", 56));
-	printf("[%d]", printf("-142      |%-7d|\n", -142));
-	printf("[%d]", printf("1892      |%-7d|\n", 1892));
-	printf("[%d]", printf("100014632 |%-7d|\n", 100014632));
+	printf("[%d]", printf("56        |%-7o|\n", 56));
+	printf("[%d]", printf("-142      |%-7o|\n", -142));
+	printf("[%d]", printf("1892      |%-7o|\n", 1892));
+	printf("[%d]", printf("100014632 |%-7o|\n", 100014632));
 
     printf("[%d]", printf("%s", "\nDecimal, fw 7, right\n"));
-	printf("[%d]", printf("56        |%7d|\n", 56));
-	printf("[%d]", printf("-142      |%7d|\n", -142));
-	printf("[%d]", printf("1892      |%7d|\n", 1892));
-	printf("[%d]", printf("100014632 |%7d|\n", 100014632));
+	printf("[%d]", printf("56        |%7b|\n", 56));
+	printf("[%d]", printf("-142      |%7b|\n", -142));
+	printf("[%d]", printf("1892      |%7b|\n", 1892));
+	printf("[%d]", printf("100014632 |%7b|\n", 100014632));
 
     printf("[%d]", printf("%s", "\nChar, fw 3, left\n"));
 	printf("[%d]", printf("k  |%-3c|\n", 'k'));

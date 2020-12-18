@@ -28,8 +28,9 @@ enum ftype {
 enum flag {
 	F_LEFT =	1 << 0U,
 	F_SIGN =	1 << 1U,
-	F_ZERO =	1 << 2U,
-	F_PREF =	1 << 3U,
+	F_SPACE =	1 << 2U,
+	F_ZERO =	1 << 3U,
+	F_PREF =	1 << 4U,
 };
 
 typedef struct _chr_spec {
@@ -82,7 +83,7 @@ static bool print(const char *data, size_t length) {
 }
 
 static bool printpad(size_t pad) {
-	for (size_t i = 0; i < pad; i++)
+	for (; pad; pad--)
 		if (!print(" ", sizeof(char)))
 			return false;
 	return true;
@@ -93,11 +94,30 @@ static inline size_t compute_pad(_fspec* fspec) {
 	       (fspec->minw - fspec->len) : 0;
 }
 
+static void _set_fspec_chr(_fspec* fspec, const char ch) {
+	fspec->type = FT_CHR;
+	fspec->tspec.chr_spec.ch = ch;
+	fspec->len = sizeof ch;
+}
+
+static void _set_fspec_str(_fspec* fspec, const char* str) {
+	fspec->type = FT_STR;
+	fspec->tspec.str_spec.str = str;
+	fspec->len = strlen(str);
+}
+
+static void _set_fspec_int(_fspec* fspec, const int32_t n, const size_t base) {
+	fspec->type = FT_INT;
+	fspec->tspec.int_spec.n = n;
+	fspec->tspec.int_spec.base = base;
+	fspec->len = ndigits(n, base) + (n < 0);
+}
+
 int printf(const char* restrict format, ...) {
 	va_list parameters;
 	va_start(parameters, format);
 
-	size_t written = 0;
+	int written = 0;
 	_fspec* fspec = &(_fspec){ 0 };
 
 	while (*format != '\0') {
@@ -131,130 +151,70 @@ int printf(const char* restrict format, ...) {
 		fspec->minw = strtou(format, 10);
 		if (fspec->minw) format += ndigits(fspec->minw, 10);
 
-		if (*format == FS_CHR) {
-			fspec->type = FT_CHR;
-			fspec->tspec.chr_spec.ch = (char)va_arg(parameters, int);
-			fspec->len = sizeof fspec->tspec.chr_spec.ch;
-			/*
-			format++;
-			char c = (char)va_arg(parameters, int);
-			if (!maxrem) {
-				// TODO: Set errno to EOVERFLOW.
-				return -1;
-			}
-			if (!print(&c, sizeof(c)))
-				return -1;
-			written++;
-			*/
-		} else if (*format == FS_STR) {
-			fspec->type = FT_STR;
-			fspec->tspec.str_spec.str = va_arg(parameters, const char*);
-			fspec->len = strlen(fspec->tspec.str_spec.str);
-			/*
-			format++;
-			const char* str = va_arg(parameters, const char*);
-			size_t len = strlen(str);
-			if (maxrem < len) {
-				// TODO: Set errno to EOVERFLOW.
-				return -1;
-			}
-			if (!print(str, len))
-				return -1;
+		if (*format == FS_CHR)
+			_set_fspec_chr(fspec, (char)va_arg(parameters, int));
+		else if (*format == FS_STR)
+			_set_fspec_str(fspec, va_arg(parameters, const char*));
+		else if (*format == FS_DEC)
+			_set_fspec_int(fspec, va_arg(parameters, int32_t), 10);
+		else if (*format == FS_OCT)
+			_set_fspec_int(fspec, va_arg(parameters, int32_t), 8);
+		else if (*format == FS_HEX)
+			_set_fspec_int(fspec, va_arg(parameters, int32_t), 16);
+		else if (*format == FS_BIN)
+			_set_fspec_int(fspec, va_arg(parameters, int32_t), 2);
+		else {
+			size_t len = strlen(fspec->fbegin);
+			if (!print(fspec->fbegin, len))
+				goto ERR_IO;
 			written += len;
-			*/
-		} else if (*format == FS_DEC) {
-			fspec->type = FT_INT;
-			fspec->tspec.int_spec.n = va_arg(parameters, int32_t);
-			fspec->tspec.int_spec.base = 10;
-			fspec->len = ndigits(fspec->tspec.int_spec.n, 10) + (fspec->tspec.int_spec.n < 0);
-			/*
-			format++;
-			int32_t n = va_arg(parameters, int32_t);
-			uint8_t str[sizeof(int)*8 + 1];
-			
-			size_t n_ch = ndigits(n, 10) + (n < 0);
-			size_t pad = (n_ch < fspec->minw) ? (fspec->minw - n_ch) : 0;
-			size_t len = n_ch + pad;
-
-			size_t i = 0;
-			
-			if (!(fspec->flags & F_LEFT) && pad) {
-				memset(str, ' ', pad);
-				i += pad;
-			}
-			
-			itostr(str + i, n, 10);
-
-			if ((fspec->flags & F_LEFT) && pad)
-				memset(str + n_ch, ' ', pad);
-			
-			if (maxrem < len) {
-				// TODO: Set errno to EOVERFLOW.
-				return -1;
-			}
-			if (!print((char*)str, len))
-				return -1;
-			written += len;
-			*/
-		} else {
-			fspec->type = FT_DEF;
-			fspec->len = strlen(fspec->fbegin);
-			/*
-			format = format_begun_at;
-			size_t len = strlen(format);
-			if (maxrem < len) {
-				// TODO: Set errno to EOVERFLOW.
-				return -1;
-			}
-			if (!print(format, len))
-				return -1;
-			written += len;
-			format += len;
-			*/
+			goto EXIT;
 		}
 
-		if (fspec->len > maxrem) {
-			// TODO: Set errno to EOVERFLOW.
-			return -1;
-		}
+		if (fspec->len > maxrem)
+			goto ERR_OVERFLOW;
 
 		format++;
 		size_t pad = compute_pad(fspec);
 		size_t total = fspec->len + pad;
 
-		if (fspec->type == FT_DEF) {
-			if (!print(fspec->fbegin, fspec->len))
-				return -1;
-		}
-
 		if (!(fspec->flags & F_LEFT) && pad)
 			if (!printpad(pad))
-				return -1;
+				goto ERR_IO;
 
 		if (fspec->type == FT_CHR) {
 			const char ch = fspec->tspec.chr_spec.ch;
 			if (!print(&ch, sizeof(ch)))
-				return -1;
+				goto ERR_IO;
 		} else if (fspec->type == FT_STR) {
 			const char* str = fspec->tspec.str_spec.str;
 			if (!print(str, fspec->len))
-				return -1;
+				goto ERR_IO;
 		} else if (fspec->type == FT_INT) {
 			int32_t n = fspec->tspec.int_spec.n;
 			size_t base = fspec->tspec.int_spec.base;
 			char* str = fspec->tspec.int_spec.str;
 			itostr(str, n, base);
 			if (!print(str, fspec->len))
-				return -1;
+				goto ERR_IO;
 		}
 
 		if ((fspec->flags & F_LEFT) && pad)
 			if (!printpad(pad))
-				return -1;
+				goto ERR_IO;
 
 		written += total;
 	}
 
+	goto EXIT;
+
+ERR_OVERFLOW:
+	written = -1;
+	goto EXIT;
+ERR_IO:
+	written = -1;
+	goto EXIT;
+EXIT:
 	va_end(parameters);
 	return written;
 }

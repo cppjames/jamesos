@@ -36,7 +36,8 @@
 [] Add float support to [printf].
 [] Add the other flags (+ # 0) to [printf].
 [] Add precision support to [printf].
-[] Restore the holy field width padding.
+[✓] Restore the holy field width padding.
+[✓] Add hex, octal and binary support to [printf].
 
 
 ┏━━━━━━━━━━━━┓
