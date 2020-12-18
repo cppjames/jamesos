@@ -18,7 +18,7 @@ void* memset(void*, int, size_t);
 char* strchr(const char*, char);
 size_t strlen(const char*);
 
-size_t itostr(uint8_t [], int32_t, size_t);
+size_t itostr(char [], int32_t, size_t);
 
 int32_t strtoi(const char [], size_t);
 uint32_t strtou(const char [], size_t);

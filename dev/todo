@@ -2,6 +2,10 @@
 ┃ Standard Library ┃
 ┗━━━━━━━━━━━━━━━━━━┛
 
+  ➤ General
+
+[] Do I really need errno? Maybe use callback functions? Decide on this.
+
   ➤ string.h
   
 [] isprint()
@@ -28,7 +32,11 @@
 
   ➤ stdio.h
 
-[] Implement [printf] with [_fspec].
+[✓] Implement [printf] with [_fspec].
+[] Add float support to [printf].
+[] Add the other flags (+ # 0) to [printf].
+[] Add precision support to [printf].
+[] Restore the holy field width padding.
 
 
 ┏━━━━━━━━━━━━┓

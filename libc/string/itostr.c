@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <math.h>
 
-size_t itostr(uint8_t str[], int32_t x, size_t base) {
+size_t itostr(char str[], int32_t x, size_t base) {
 	size_t nd = ndigits(x, base);
 	size_t i = 0;
 	
