@@ -211,9 +211,11 @@ int printf(const char* restrict format, ...) {
 ERR_OVERFLOW:
 	written = -1;
 	goto EXIT;
+
 ERR_IO:
 	written = -1;
 	goto EXIT;
+	
 EXIT:
 	va_end(parameters);
 	return written;
