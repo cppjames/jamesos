@@ -1,8 +1,11 @@
 #include <string.h>
 
 char* strchr(const char* str, char ch) {
-    while (*str)
+	if (ch == '\0')
+		return (char*)str + strlen(str);
+
+    for (; *str; str++)
         if (*str == ch)
-            return str;
+            return (char*)str;
     return 0;
 }

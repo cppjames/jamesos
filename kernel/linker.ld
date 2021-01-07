@@ -1,5 +1,3 @@
-ENTRY(_start)
-
 SECTIONS
 {
     kernel_phys_offset = 0xffffffff80000000;
@@ -7,7 +5,7 @@ SECTIONS
 
     .stivale2hdr ALIGN(4K) :
     {
-        KEEP(*(.stivalehdr))
+        KEEP(*(.stivale2hdr))
     }
 
     .text ALIGN(4K) :

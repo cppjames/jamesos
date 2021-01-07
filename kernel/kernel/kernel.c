@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <kernel/tty.h>
 #include <vga.h>
+#include <kernel/kinfo.h>
+
+// Remove
+#include <string.h>
 
 static uint8_t stack[4096] = {0};
 void kernel_main(struct stivale2_struct *info);
@@ -23,32 +27,10 @@ struct stivale2_header header2 = {
     .tags        = (uint64_t)&smp_request
 };
 
-void kernel_main(struct stivale2_struct *info) {
+void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
 	terminal_initialize();
-
-    printf("[%d]", printf("%s", "Decimal, fw 7, left\n"));
-	printf("[%d]", printf("56        |%-7o|\n", 56));
-	printf("[%d]", printf("-142      |%-7o|\n", -142));
-	printf("[%d]", printf("1892      |%-7o|\n", 1892));
-	printf("[%d]", printf("100014632 |%-7o|\n", 100014632));
-
-    printf("[%d]", printf("%s", "\nDecimal, fw 7, right\n"));
-	printf("[%d]", printf("56        |%7b|\n", 56));
-	printf("[%d]", printf("-142      |%7b|\n", -142));
-	printf("[%d]", printf("1892      |%7b|\n", 1892));
-	printf("[%d]", printf("100014632 |%7b|\n", 100014632));
-
-    printf("[%d]", printf("%s", "\nChar, fw 3, left\n"));
-	printf("[%d]", printf("k  |%-3c|\n", 'k'));
-	printf("[%d]", printf("=  |%-3c|\n", '='));
-	printf("[%d]", printf("%%  |%-3c|\n", '%'));
-	printf("[%d]", printf("]  |%-3c|\n", ']'));
-
-    printf("[%d]", printf("%s", "\nString, fw 12, right\n"));
-	printf("[%d]", printf("hey bebi           |%12s|\n", "hey bebi"));
-	printf("[%d]", printf("is it working now? |%12s|\n", "is it working now?"));
-	printf("[%d]", printf("ok                 |%12s|\n", "ok"));
-	printf("[%d]", printf("                   |%12s|\n", ""));
+    print_splash_info();
+    
 
 	asm volatile ("hlt");
 }

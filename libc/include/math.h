@@ -10,9 +10,32 @@
 extern "C" {
 #endif
 
-#define abs(X) (((X) < 0) ? (-(X)) : (X))
-#define min(X, Y) (((X) < (Y)) ? (X) : (Y))
-#define max(X, Y) (((X) > (Y)) ? (X) : (Y))
+static inline int abs(int n) {
+	return (n < 0) ? -n : n;
+}
+
+static inline int min(int n, int m) {
+	return (n < m) ? n : m;
+}
+
+static inline int max(int n, int m) {
+	return (n > m) ? n : m;
+}
+
+/*
+	TODO: Support for floating point arithmetic.
+
+static inline double fabs(double x) {
+	return (x < 0) ? -x : x;
+}
+
+static inline double fmin(double x, double y) {
+	return (x < y) ? x : y;
+}
+
+static inline double fmax(double x, double y) {
+	return (x > y) ? x : y;
+}*/
 
 size_t ndigits(int32_t, size_t);
 

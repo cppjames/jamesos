@@ -31,7 +31,13 @@ string/memcmp.o \
 string/memcpy.o \
 string/memmove.o \
 string/memset.o \
+string/strchr.o \
+string/strcmp.o \
+string/strcpy.o \
+string/strcspn.o \
 string/strlen.o \
+string/strspn.o \
+string/strstr.o \
 string/strtoi.o \
 string/strtou.o \
 

@@ -6,6 +6,8 @@ CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
 
+KERNEL=jamesos.kernel
+
 DESTDIR?=
 PREFIX?=/usr/local
 INCLUDEDIR?=$(PREFIX)/include
@@ -19,7 +21,8 @@ LIBS:=$(LIBS) -nostdlib -lk -lgcc
 
 KERNEL_OBJS=\
 kernel/kernel.o \
-kernel/tty.o
+kernel/tty.o \
+kernel/kinfo.o
 
 OBJS=\
 $(KERNEL_OBJS)
@@ -34,9 +37,9 @@ $(LIBS)
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
 
-all: myos.kernel
+all: $(KERNEL)
 
-myos.kernel: $(OBJS) linker.ld
+$(KERNEL): $(OBJS) linker.ld
 	$(CC) -T linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
 	#grub-file --is-x86-multiboot myos.kernel
 
@@ -50,11 +53,11 @@ myos.kernel: $(OBJS) linker.ld
 #	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 clean:
-	rm -f myos.kernel
+	rm -f $(KERNEL)
 	rm -f $(OBJS) *.o */*.o */*/*.o
 	rm -f $(OBJS:.o=.d) *.d */*.d */*/*.d
 
-install: install-headers myos.kernel
+install: install-headers $(KERNEL)
 
 install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)

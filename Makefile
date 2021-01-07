@@ -2,7 +2,7 @@ CC         = gcc
 LD         = ld
 BUILDDIR   = build
 KERNEL_HDD = $(BUILDDIR)/disk.hdd
-KERNEL_ELF = kernel/myos.kernel
+KERNEL_ELF = kernel/jamesos.kernel
 
 BUILDSCRIPT = ./build.sh
 CLEANSCRIPT = ./clean.sh
@@ -31,14 +31,14 @@ LDHARDFLAGS := $(LDFLAGS)        \
 	-z max-page-size=0x1000   \
 	-T $(LSCRIPT)
 
-.PHONY: run clean all
-.DEFAULT_GOAL = $(KERNEL_HDD)
+.PHONY: disk run clean all
+.DEFAULT_GOAL = disk
 
 all: run clean
 
-disk: $(KERNEL_HDD)
-run: $(KERNEL_HDD)
+run: disk
 	qemu-system-x86_64 -m 2G -hda $(KERNEL_HDD)
+disk: $(KERNEL_HDD)
 
 $(KERNEL_ELF):
 	$(BUILDSCRIPT)

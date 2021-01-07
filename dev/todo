@@ -8,26 +8,27 @@
 
   ➤ string.h
   
-[] isprint()
-[] iscntrl()
-[] isgraph()
-[] isxdigit()
-[] isblank()
-[] ispunct()
+[✓] isprint()
+[✓] iscntrl()
+[✓] isgraph()
+[✓] isxdigit()
+[✓] isblank()
+[✓] ispunct()
 
 
   ➤ string.h
 
 [✓] Fix [strtoi] so it works with negative numbers.
-[] strcpy()
+[✓] strcpy()
 [] strncpy()
-[] strcmp()
+[✓] strcmp()
 [] strncmp()
 [] strcat()
 [] strncat()
-[] strstr()
+[✓] strstr()
 [] strrchr()
 [] strtok()
+[✓] strspn()
 
 
   ➤ stdio.h
@@ -47,6 +48,9 @@
   ➤ General
 
 [] Decide on pointer binding direction (and actually use it).
+[] Replace fixed width integer types with normal integer types (for better portability).
+[] Decide on tabs/spaces.
+[] Don't destroy input parameters.
 
 ┏━━━━━━━━━━━━━━━┓
 ┃ Documentation ┃

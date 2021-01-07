@@ -113,6 +113,33 @@ static void _set_fspec_int(_fspec* fspec, const int32_t n, const size_t base) {
 	fspec->len = ndigits(n, base) + (n < 0);
 }
 
+static void _set_fspec_def(_fspec* fspec) {
+	fspec->type = FT_DEF;
+	fspec->tspec.str_spec.str = fspec->fbegin;
+	fspec->len = strlen(fspec->fbegin);
+}
+
+static void _set_fspec(_fspec* fspec, const char* restrict format, va_list parameters) {
+	if (*format == FS_CHR)
+		_set_fspec_chr(fspec, (char)va_arg(parameters, int));
+	else if (*format == FS_STR)
+		_set_fspec_str(fspec, va_arg(parameters, const char*));
+	else if (*format == FS_DEC)
+		_set_fspec_int(fspec, va_arg(parameters, int32_t), 10);
+	else if (*format == FS_OCT)
+		_set_fspec_int(fspec, va_arg(parameters, int32_t), 8);
+	else if (*format == FS_HEX)
+		_set_fspec_int(fspec, va_arg(parameters, int32_t), 16);
+	else if (*format == FS_BIN)
+		_set_fspec_int(fspec, va_arg(parameters, int32_t), 2);
+	else
+		_set_fspec_def(fspec);
+}
+
+static inline bool _is_fspec_def(_fspec* fspec) {
+	return fspec->type == FT_DEF;
+}
+
 int printf(const char* restrict format, ...) {
 	va_list parameters;
 	va_start(parameters, format);
@@ -130,10 +157,9 @@ int printf(const char* restrict format, ...) {
 			size_t amount = 1;
 			while (format[amount] && format[amount] != '%')
 				amount++;
-			if (maxrem < amount) {
-				// TODO: Set errno to EOVERFLOW.
-				return -1;
-			}
+			if (maxrem < amount)
+				goto ERR_OVERFLOW;
+			
 			if (!print(format, amount))
 				return -1;
 			format += amount;
@@ -151,28 +177,13 @@ int printf(const char* restrict format, ...) {
 		fspec->minw = strtou(format, 10);
 		if (fspec->minw) format += ndigits(fspec->minw, 10);
 
-		if (*format == FS_CHR)
-			_set_fspec_chr(fspec, (char)va_arg(parameters, int));
-		else if (*format == FS_STR)
-			_set_fspec_str(fspec, va_arg(parameters, const char*));
-		else if (*format == FS_DEC)
-			_set_fspec_int(fspec, va_arg(parameters, int32_t), 10);
-		else if (*format == FS_OCT)
-			_set_fspec_int(fspec, va_arg(parameters, int32_t), 8);
-		else if (*format == FS_HEX)
-			_set_fspec_int(fspec, va_arg(parameters, int32_t), 16);
-		else if (*format == FS_BIN)
-			_set_fspec_int(fspec, va_arg(parameters, int32_t), 2);
-		else {
-			size_t len = strlen(fspec->fbegin);
-			if (!print(fspec->fbegin, len))
-				goto ERR_IO;
-			written += len;
-			goto EXIT;
-		}
+		_set_fspec(fspec, format, parameters);
 
 		if (fspec->len > maxrem)
 			goto ERR_OVERFLOW;
+
+		if (_is_fspec_def(fspec))
+			goto WRITE_DEFAULT;
 
 		format++;
 		size_t pad = compute_pad(fspec);
@@ -208,13 +219,19 @@ int printf(const char* restrict format, ...) {
 
 	goto EXIT;
 
+WRITE_DEFAULT: ;
+	const char* str = fspec->tspec.str_spec.str;
+	if (!print(str, fspec->len))
+		goto ERR_IO;
+	written += fspec->len;
+	goto EXIT;
+
 ERR_OVERFLOW:
 	written = -1;
 	goto EXIT;
 
 ERR_IO:
 	written = -1;
-	goto EXIT;
 	
 EXIT:
 	va_end(parameters);

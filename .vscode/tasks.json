@@ -6,9 +6,13 @@
         {
             "label": "Run",
             "type":"shell",
-            "command": "/usr/bin/make",
+            "command": "/usr/bin/colormake",
             "args": [ "run", "clean" ],
             "group": {"kind": "build", "isDefault": true},
+            "presentation": {
+                "reveal": "silent",
+                "clear": true
+            }
         }
     ]
 }
