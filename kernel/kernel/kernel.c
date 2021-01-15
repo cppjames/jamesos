@@ -1,14 +1,17 @@
 #include <kernel/stivale2.h>
 
 #include <stdio.h>
-#include <kernel/tty.h>
-#include <vga.h>
-#include <kernel/kinfo.h>
+#include "kinfo.h"
+
+#include <sys/io.h>
+#include <kernel/interrupts.h>
+
+#include <utils/debug.h>
 
 // Remove
 #include <string.h>
 
-static uint8_t stack[4096] = {0};
+static uint8_t stack[4096] = { 0 };
 void kernel_main(struct stivale2_struct *info);
 
 struct stivale2_header_tag_smp smp_request = {
@@ -29,8 +32,12 @@ struct stivale2_header header2 = {
 
 void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
 	terminal_initialize();
-    print_splash_info();
-    
+    klog_info("Initialized terminal.", KLOG_SUCCESS);
 
-	asm volatile ("hlt");
+    initialize_idt();
+    klog_info("Loaded IDT.", KLOG_SUCCESS);
+
+    print_splash_info(info);
+	
+    asm volatile ("hlt");
 }

@@ -2,8 +2,8 @@
 #include <stdint.h>
 
 void* memmove(void* dstptr, const void* srcptr, size_t size) {
-	uint8_t* dst = (uint8_t*) dstptr;
-	const uint8_t* src = (const uint8_t*) srcptr;
+	unsigned char* dst = (unsigned char*) dstptr;
+	const unsigned char* src = (const unsigned char*) srcptr;
 	if (dst < src)
 		for (size_t i = 0; i < size; i++)
 			dst[i] = src[i];

@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-uint32_t strtou(const char str[], size_t base) {
-    uint32_t n = 0;
+unsigned int strtou(const char str[], size_t base) {
+    unsigned int n = 0;
 
     while (*str) {
         size_t d = 0;

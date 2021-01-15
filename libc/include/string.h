@@ -17,16 +17,18 @@ void* memset(void*, int, size_t);
 
 char* strchr(const char*, char);
 int strcmp(const char*, const char*);
-char* strcpy (char*, const char*);
+char* strcpy(char*, const char*);
+char* strncpy(char*, const char*, size_t);
 size_t strlen(const char*);
 size_t strcspn(const char*, const char*);
 size_t strspn(const char*, const char*);
 char* strstr(const char*, const char*);
 
-size_t itostr(char [], int32_t, size_t);
+size_t itostr(char [], int, size_t);
+size_t ztostr(char [], size_t, size_t);
 
-int32_t strtoi(const char [], size_t);
-uint32_t strtou(const char [], size_t);
+int strtoi(const char [], size_t);
+unsigned int strtou(const char [], size_t);
 
 #ifdef __cplusplus
 }

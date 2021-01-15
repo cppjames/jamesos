@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-#include <vga.h>
-
-#if defined(__is_libk)
-#include <kernel/tty.h>
-#endif
+#include <devices/terminal.h>
 
 void setcolor(enum vga_color color) {
 #if defined(__is_libk)

@@ -12,6 +12,7 @@ DESTDIR?=
 PREFIX?=/usr/local
 INCLUDEDIR?=$(PREFIX)/include
 
+NASMFLAGS:=-felf64
 CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -I../stivale -I. -fno-stack-protector    \
 				  -fno-pic -fomit-frame-pointer -mno-80387 -mno-mmx -mno-3dnow -mno-sse \
 				  -mno-sse2 -masm=intel -mcmodel=kernel
@@ -21,8 +22,11 @@ LIBS:=$(LIBS) -nostdlib -lk -lgcc
 
 KERNEL_OBJS=\
 kernel/kernel.o \
-kernel/tty.o \
-kernel/kinfo.o
+kernel/kinfo.o \
+devices/terminal.o \
+kernel/interrupts.o \
+kernel/irqhandler.o \
+kernel/irq.o
 
 OBJS=\
 $(KERNEL_OBJS)
@@ -35,7 +39,7 @@ $(LIBS)
 # The objects were also here
 
 .PHONY: all clean install install-headers install-kernel
-.SUFFIXES: .o .c .S
+.SUFFIXES: .o .c .S .asm
 
 all: $(KERNEL)
 
@@ -48,6 +52,9 @@ $(KERNEL): $(OBJS) linker.ld
 
 .c.o:
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
+
+.asm.o:
+	nasm $< -o $@ $(NASMFLAGS)
 
 #.S.o:
 #	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)

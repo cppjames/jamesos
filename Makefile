@@ -37,7 +37,7 @@ LDHARDFLAGS := $(LDFLAGS)        \
 all: run clean
 
 run: disk
-	qemu-system-x86_64 -m 2G -hda $(KERNEL_HDD)
+	qemu-system-x86_64 -m 2G -hda $(KERNEL_HDD) -debugcon stdio
 disk: $(KERNEL_HDD)
 
 $(KERNEL_ELF):

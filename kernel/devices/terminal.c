@@ -2,9 +2,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include <kernel/tty.h>
-
-#include "vga.h"
+#include <devices/terminal.h>
 
 static inline void terminal_putc_at(size_t x, size_t y, uint8_t c);
 static inline void terminal_putentryat(size_t x, size_t y, uint16_t entry);

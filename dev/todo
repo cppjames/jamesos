@@ -5,9 +5,11 @@
   ➤ General
 
 [] Do I really need errno? Maybe use callback functions? Decide on this.
+[✓] Check every libc function and header so far.
+[✓] Write the interface for reading and writing to and from serial ports.
 
-  ➤ string.h
-  
+  ➤ ctype.h
+
 [✓] isprint()
 [✓] iscntrl()
 [✓] isgraph()
@@ -15,12 +17,11 @@
 [✓] isblank()
 [✓] ispunct()
 
-
   ➤ string.h
 
 [✓] Fix [strtoi] so it works with negative numbers.
 [✓] strcpy()
-[] strncpy()
+[✓] strncpy()
 [✓] strcmp()
 [] strncmp()
 [] strcat()
@@ -30,27 +31,73 @@
 [] strtok()
 [✓] strspn()
 
-
   ➤ stdio.h
 
 [✓] Implement [printf] with [_fspec].
 [] Add float support to [printf].
 [] Add the other flags (+ # 0) to [printf].
 [] Add precision support to [printf].
-[✓] Restore the holy field width padding.
+[✓] Restore the holy field width padding (for [printf]).
 [✓] Add hex, octal and binary support to [printf].
+[] Think about a method for separating different width integer format specifiers in [printf] implementation.
+[✓] Add pointer support to [printf].
+[✓] Replace [printf] with [vprintf] and write [printf] as a wrapper function for [vprintf].
+[] Make [printf] function that accepts a character-printer function.
 
 
-┏━━━━━━━━━━━━┓
-┃ Code Style ┃
-┗━━━━━━━━━━━━┛
+┏━━━━━━━━┓
+┃ Kernel ┃
+┗━━━━━━━━┛
 
   ➤ General
 
+[] Write a stivale tag parser and keep the info somewhere.
+[] Move action-info-printing functions away from the function that handles the actions indirectly.
+[] Give limine more tags.
+[] Move [print_splash_info] into a higher level init function and call that from kernel_start.
+[] Write an interface for getting the stivale info (after it's been parsed).
+[] Give limine a frambuffer header tag.
+[] Read the stivale2 documentation for the memory map structure tag.
+[] Decide on structure of the kernel directory.
+[✓] Load IDT table and write some IRQ handlers.
+[] Handle keyboard interrupts properly.
+[] Learn how to set up the GDT and do it.
+[] Clean up integer types in the functions that load the IDT.
+
+  ➤ Debugging
+
+[✓] Function that logs info about kernel stuff.
+[] Write interface for logging to QEMU's 0xE9 port.
+[] Write interface for logging various debug messages separately from kernel-related logs.
+
+
+┏━━━━━━━━━━━━━┓
+┃ Development ┃
+┗━━━━━━━━━━━━━┛
+
+  ➤ Code Style
+
 [] Decide on pointer binding direction (and actually use it).
-[] Replace fixed width integer types with normal integer types (for better portability).
-[] Decide on tabs/spaces.
+[✓] Replace fixed width integer types with normal integer types (for better portability).
+[✓] Decide on tabs/spaces.
 [] Don't destroy input parameters.
+[] Consistent naming convention for kernel-related enumerations.
+[] Consistent naming convention for libc implementations.
+[] Replace tabs with spaces.
+[] Put #include <cdefs.h> and extern "C" in all headers.
+[] Decide on header inclusion order.
+
+  ➤ Design
+
+[] Find a good diagram drawing program.
+[] Maybe draw some diagrams with bindings between files.
+[] Minimize the I/O interface that is exposed to the kernel.c file.
+
+  ➤ Structure
+
+[] Move non-standard header files away from the root of the include folder.
+[] Review kernel folder structure. Move headers into proper folders.
+
 
 ┏━━━━━━━━━━━━━━━┓
 ┃ Documentation ┃

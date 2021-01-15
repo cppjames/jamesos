@@ -37,7 +37,8 @@ static inline double fmax(double x, double y) {
 	return (x > y) ? x : y;
 }*/
 
-size_t ndigits(int32_t, size_t);
+size_t ndigits(int, size_t);
+size_t zdigits(size_t, size_t);
 
 #ifdef __cplusplus
 }

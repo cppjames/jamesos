@@ -19,27 +19,8 @@ CPPFLAGS:=$(CPPFLAGS) -D__is_libc -Iinclude
 LIBK_CFLAGS:=$(CFLAGS)
 LIBK_CPPFLAGS:=$(CPPFLAGS) -D__is_libk
 
-FREEOBJS=\
-math/ndigits.o \
-stdio/printf.o \
-stdio/putchar.o \
-stdio/puts.o \
-stdio/setcolor.o \
-stdlib/abort.o \
-string/itostr.o \
-string/memcmp.o \
-string/memcpy.o \
-string/memmove.o \
-string/memset.o \
-string/strchr.o \
-string/strcmp.o \
-string/strcpy.o \
-string/strcspn.o \
-string/strlen.o \
-string/strspn.o \
-string/strstr.o \
-string/strtoi.o \
-string/strtou.o \
+CSRC = $(wildcard */*.c)
+FREEOBJS = $(CSRC:.c=.o)
 
 OBJS=\
 $(FREEOBJS)
