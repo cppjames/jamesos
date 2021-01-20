@@ -2,31 +2,41 @@
 #include <sys/io.h>
 #include <stdint.h>
 
-#define KERNEL_CODE_SEGMENT_OFFSET 0x80
+#include <utils/debug.h>
+
+#define KERNEL_CODE_SEGMENT_OFFSET 0x0
 #define INTERRUPT_GATE 0x8E
 
-typedef struct idt_entry {
+#define OFFSET_MASK_LOWER  0x000000000000ffff
+#define OFFSET_MASK_MIDDLE 0x00000000ffff0000
+#define OFFSET_MASK_HIGHER 0xffffffff00000000
+
+typedef struct {
 	uint16_t offset_lowerbits;
 	uint16_t selector;
-	uint8_t zero;
+	uint8_t zero_1;
 	uint8_t type_attr;
-	uint16_t offset_higherbits;
-} idt_entry_t;
+	uint16_t offset_middlebits;
+    uint32_t offset_higherbits;
+    uint32_t zero_2;
+} __attribute__((packed)) idt_entry_t;
 
-typedef struct idt_ptr {
-    unsigned short limit;
-    unsigned int base;
+typedef struct {
+    uint16_t limit;
+    uint64_t base;
 } __attribute__((packed)) idt_ptr_t;
 
 idt_entry_t idt[256];
 
-static inline void set_idt_entry(uint8_t index, unsigned long irq_address, uint16_t selector, uint8_t attributes) {
+static inline void set_idt_entry(uint8_t index, uint64_t irq_address, uint16_t selector, uint8_t attributes) {
     idt[index] = (idt_entry_t) {
-        .offset_lowerbits = irq_address & 0xffff,
+        .offset_lowerbits = irq_address & OFFSET_MASK_LOWER,
         .selector = selector,
-        .zero = 0,
+        .zero_1 = 0,
         .type_attr = attributes,
-        .offset_higherbits = (irq_address & 0xffff0000) >> 16
+        .offset_middlebits = (irq_address & OFFSET_MASK_MIDDLE) >> 16,
+        .offset_higherbits = (irq_address & OFFSET_MASK_HIGHER) >> 32,
+        .zero_2 = 0
     };
 }
 
@@ -62,26 +72,26 @@ void initialize_idt() {
     outb(0x21, 0x0);
     outb(0xA1, 0x0);
 
-    set_idt_entry(32, (unsigned long)irq0,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(33, (unsigned long)irq1,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(34, (unsigned long)irq2,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(35, (unsigned long)irq3,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(36, (unsigned long)irq4,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(37, (unsigned long)irq5,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(38, (unsigned long)irq6,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(39, (unsigned long)irq7,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(40, (unsigned long)irq8,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(41, (unsigned long)irq9,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(42, (unsigned long)irq10, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(43, (unsigned long)irq11, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(44, (unsigned long)irq12, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(45, (unsigned long)irq13, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(46, (unsigned long)irq14, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
-    set_idt_entry(47, (unsigned long)irq15, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(32, (uint64_t)irq0,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(33, (uint64_t)irq1,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(34, (uint64_t)irq2,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(35, (uint64_t)irq3,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(36, (uint64_t)irq4,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(37, (uint64_t)irq5,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(38, (uint64_t)irq6,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(39, (uint64_t)irq7,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(40, (uint64_t)irq8,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(41, (uint64_t)irq9,  KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(42, (uint64_t)irq10, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(43, (uint64_t)irq11, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(44, (uint64_t)irq12, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(45, (uint64_t)irq13, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(46, (uint64_t)irq14, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
+    set_idt_entry(47, (uint64_t)irq15, KERNEL_CODE_SEGMENT_OFFSET, INTERRUPT_GATE);
 
 	idt_ptr_t idt_ptr = (idt_ptr_t) {
     	.limit = (sizeof(idt_entry_t) * 256) - 1,
-	    .base = (unsigned long)idt
+	    .base = (uint64_t)idt
     };
 
  	load_idt(idt_ptr);

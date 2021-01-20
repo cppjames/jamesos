@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "atomic": "cpp",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "ranges": "c"
     },
+    "C_Cpp.errorSquiggles": "Disabled",
 }

@@ -23,10 +23,13 @@ LIBS:=$(LIBS) -nostdlib -lk -lgcc
 KERNEL_OBJS=\
 kernel/kernel.o \
 kernel/kinfo.o \
+kernel/kdebug.o \
 devices/terminal.o \
 kernel/interrupts.o \
 kernel/irqhandler.o \
-kernel/irq.o
+kernel/idt.o \
+kernel/gdt.o \
+kernel/load_gdt.o
 
 OBJS=\
 $(KERNEL_OBJS)

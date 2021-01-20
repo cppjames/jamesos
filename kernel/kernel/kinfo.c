@@ -1,5 +1,5 @@
 #include <kernel/stivale2.h>
-#include "kinfo.h"
+#include <kernel/kinfo.h>
 #include <stdio.h>
 
 void print_splash_info(struct stivale2_struct *info) {

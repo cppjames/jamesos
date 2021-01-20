@@ -73,97 +73,97 @@ irq0:
   pushaq
   call irq0_handler
   popaq
-  iret
+  iretq
  
 irq1:
   pushaq
   call irq1_handler
   popaq
-  iret
+  iretq
  
 irq2:
   pushaq
   call irq2_handler
   popaq
-  iret
+  iretq
  
 irq3:
   pushaq
   call irq3_handler
   popaq
-  iret
+  iretq
  
 irq4:
   pushaq
   call irq4_handler
   popaq
-  iret
+  iretq
  
 irq5:
   pushaq
   call irq5_handler
   popaq
-  iret
+  iretq
  
 irq6:
   pushaq
   call irq6_handler
   popaq
-  iret
+  iretq
  
 irq7:
   pushaq
   call irq7_handler
   popaq
-  iret
+  iretq
  
 irq8:
   pushaq
   call irq8_handler
   popaq
-  iret
+  iretq
  
 irq9:
   pushaq
   call irq9_handler
   popaq
-  iret
+  iretq
  
 irq10:
   pushaq
   call irq10_handler
   popaq
-  iret
+  iretq
  
 irq11:
   pushaq
   call irq11_handler
   popaq
-  iret
+  iretq
  
 irq12:
   pushaq
   call irq12_handler
   popaq
-  iret
+  iretq
  
 irq13:
   pushaq
   call irq13_handler
   popaq
-  iret
+  iretq
  
 irq14:
   pushaq
   call irq14_handler
   popaq
-  iret
+  iretq
  
 irq15:
   pushaq
   call irq15_handler
   popaq
-  iret
+  iretq
  
 load_idt:
 	mov edx, [esp + 4]

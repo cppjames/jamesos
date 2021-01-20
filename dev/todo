@@ -42,7 +42,8 @@
 [] Think about a method for separating different width integer format specifiers in [printf] implementation.
 [✓] Add pointer support to [printf].
 [✓] Replace [printf] with [vprintf] and write [printf] as a wrapper function for [vprintf].
-[] Make [printf] function that accepts a character-printer function.
+[✓] Write a [printf] function that accepts a character-printer function.
+[] Add support for [long int] to [printf].
 
 
 ┏━━━━━━━━┓
@@ -86,6 +87,7 @@
 [] Replace tabs with spaces.
 [] Put #include <cdefs.h> and extern "C" in all headers.
 [] Decide on header inclusion order.
+[] Decide on hex case.
 
   ➤ Design
 

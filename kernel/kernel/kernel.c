@@ -1,10 +1,12 @@
 #include <kernel/stivale2.h>
 
 #include <stdio.h>
-#include "kinfo.h"
+#include <kernel/kinfo.h>
+#include <kernel/kdebug.h>
 
 #include <sys/io.h>
 #include <kernel/interrupts.h>
+#include <kernel/gdt.h>
 
 #include <utils/debug.h>
 
@@ -33,11 +35,14 @@ struct stivale2_header header2 = {
 void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
 	terminal_initialize();
     klog_info("Initialized terminal.", KLOG_SUCCESS);
+    
+    initialize_gdt();
+    klog_info("Loaded global descriptor table.", KLOG_SUCCESS);
 
     initialize_idt();
-    klog_info("Loaded IDT.", KLOG_SUCCESS);
+    klog_info("Loaded interrupt descriptor table.", KLOG_SUCCESS);
 
-    print_splash_info(info);
+    //print_splash_info(info);
 	
     asm volatile ("hlt");
 }

@@ -4,7 +4,8 @@
 void irq0_handler(void) {
     outb(0x20, 0x20); //EOI
 }
- 
+
+// Keyboard
 void irq1_handler(void) {
     outb(0x20, 0x20); //EOI
 }
