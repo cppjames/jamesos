@@ -1,0 +1,13 @@
+jamesos
+    > .vscode           : Visual Studio Code config files
+    ~ build             : contains the JamesOS hdd
+    > dev               : development-related files, not part of built source
+        > trash         : files that are no longer needed (but who knows...)
+    > kernel            : kernel and kernel-related headers
+    > devices           : implementations of device headers
+    > include           : kernel-related header files
+        > devices       : headers for interacting with devices
+        > kernel        : headers that only the kernel should use
+    > kernel            : kernel_main and implementations for kernel-related headers
+    > libc              : libc implementation and headers
+    > limine            : limine source code and build

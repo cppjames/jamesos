@@ -8,4 +8,3 @@ for PROJECT in $PROJECTS; do
 done
 
 rm -rf sysroot
-rm -rf build

@@ -2,6 +2,7 @@
 #define KDBEUG_H 1
 
 #include <sys/cdefs.h>
+#include <stdio.h>
 #include <stdarg.h>
 
 #ifdef __cplusplus

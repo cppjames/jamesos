@@ -1,7 +1,7 @@
 DEFAULT_HOST!=../default-host.sh
 HOST?=DEFAULT_HOST
 
-CFLAGS?=-O2 -g
+CFLAGS?=-O2 -g -std=gnu11 
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
@@ -12,55 +12,49 @@ DESTDIR?=
 PREFIX?=/usr/local
 INCLUDEDIR?=$(PREFIX)/include
 
-NASMFLAGS:=-felf64
-CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -I../stivale -I. -fno-stack-protector    \
+ALL_HEADER_DIRS := $(wildcard include/*)
+HEADER_DIRS     := $(filter-out include/kernel, $(ALL_HEADER_DIRS))
+
+INCLUDE_PATHS := ../stivale     \
+                 .              \
+
+INCLUDE_FLAGS := $(INCLUDE_PATHS:%=-I%)
+
+NASMFLAGS:=-felf64 -g
+CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra $(INCLUDE_FLAGS) -fno-stack-protector    \
 				  -fno-pic -fomit-frame-pointer -mno-80387 -mno-mmx -mno-3dnow -mno-sse \
 				  -mno-sse2 -masm=intel -mcmodel=kernel
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS) -static -nostdlib -no-pie -z max-page-size=0x1000
 LIBS:=$(LIBS) -nostdlib -lk -lgcc
 
-KERNEL_OBJS=\
-kernel/kernel.o \
-kernel/kinfo.o \
-kernel/kdebug.o \
-devices/terminal.o \
-kernel/interrupts.o \
-kernel/irqhandler.o \
-kernel/idt.o \
-kernel/gdt.o \
-kernel/load_gdt.o
+
+CSRC := $(shell find . -name '*.c')
+ASMSRC := $(shell find . -name '*.asm')
+KERNEL_OBJS := $(CSRC:.c=_c.o) \
+               $(ASMSRC:.asm=_asm.o)
 
 OBJS=\
 $(KERNEL_OBJS)
-# The crt objects were here
 
 LINK_LIST=\
 $(LDFLAGS) \
 $(KERNEL_OBJS) \
 $(LIBS)
-# The objects were also here
 
 .PHONY: all clean install install-headers install-kernel
-.SUFFIXES: .o .c .S .asm
+.SUFFIXES: _c.o _asm.o .c .S .asm
 
 all: $(KERNEL)
 
 $(KERNEL): $(OBJS) linker.ld
 	$(CC) -T linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	#grub-file --is-x86-multiboot myos.kernel
 
-#$(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
-#	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
+.c_c.o:
+	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
-.c.o:
-	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
-
-.asm.o:
+.asm_asm.o:
 	nasm $< -o $@ $(NASMFLAGS)
-
-#.S.o:
-#	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 clean:
 	rm -f $(KERNEL)
@@ -71,6 +65,6 @@ install: install-headers $(KERNEL)
 
 install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
+	cp -R --preserve=timestamps $(HEADER_DIRS) $(DESTDIR)$(INCLUDEDIR)/.
 
 -include $(OBJS:.o=.d)

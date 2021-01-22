@@ -71,6 +71,9 @@ void klog_info(char* message, enum klog_status status) {
     } else if (status == KLOG_FAIL) {
         setcolor(VGA_COLOR_LIGHT_RED);
         printf("FAIL");
+    } else if (status == KLOG_PANIC) {
+        setcolor(VGA_COLOR_LIGHT_MAGENTA);
+        printf("PANIC");
     }
 
     setcolor(VGA_COLOR_WHITE);

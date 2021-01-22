@@ -62,14 +62,16 @@
 [] Decide on structure of the kernel directory.
 [✓] Load IDT table and write some IRQ handlers.
 [] Handle keyboard interrupts properly.
-[] Learn how to set up the GDT and do it.
+[✓] Learn how to set up the GDT and do it.
 [] Clean up integer types in the functions that load the IDT.
+[] Fix the IDT.
 
   ➤ Debugging
 
 [✓] Function that logs info about kernel stuff.
-[] Write interface for logging to QEMU's 0xE9 port.
+[✓] Write interface for logging to QEMU's 0xE9 port.
 [] Write interface for logging various debug messages separately from kernel-related logs.
+[] Learn how to connect GDB to QEMU.
 
 
 ┏━━━━━━━━━━━━━┓

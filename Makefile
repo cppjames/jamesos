@@ -31,13 +31,30 @@ LDHARDFLAGS := $(LDFLAGS)        \
 	-z max-page-size=0x1000   \
 	-T $(LSCRIPT)
 
-.PHONY: disk run clean all
+QFLAGS = \
+	-m 2G								\
+	-hda $(KERNEL_HDD)					\
+
+QDEBUGFLAGS := $(QFLAGS)				\
+	-debugcon file:./log_debug.txt		\
+	-D ./log_qemu.txt					\
+	-d cpu_reset						\
+	-monitor stdio
+
+QGDBFLAGS :=							\
+	-s -S $(KERNEL_HDD)
+
+.PHONY: disk run clean all debug gdb
 .DEFAULT_GOAL = disk
 
 all: run clean
 
 run: disk
-	qemu-system-x86_64 -m 2G -hda $(KERNEL_HDD) -debugcon file:./log_debug.txt -D ./log_qemu.txt -d int
+	qemu-system-x86_64 $(QFLAGS)
+debug: disk
+	qemu-system-x86_64 $(QDEBUGFLAGS)
+gdb: disk
+	qemu-system-x86_64 $(QGDBFLAGS)
 disk: $(KERNEL_HDD)
 
 $(KERNEL_ELF):
@@ -47,7 +64,7 @@ limine/limine-install:
 	$(MAKE) -C limine limine-install
 
 $(KERNEL_HDD): limine/limine-install $(KERNEL_ELF)
-	-mkdir build
+	mkdir -p build
 	rm -f $(KERNEL_HDD)
 	dd if=/dev/zero bs=1M count=0 seek=64 of=$(KERNEL_HDD)
 	parted -s $(KERNEL_HDD) mklabel msdos
@@ -58,6 +75,4 @@ $(KERNEL_HDD): limine/limine-install $(KERNEL_ELF)
 	limine/limine-install limine/limine.bin $(KERNEL_HDD)
 
 clean:
-	rm -rf $(BUILDDIR)
-	rm -rf $(SYSROOT)
 	$(CLEANSCRIPT)

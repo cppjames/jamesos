@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <devices/terminal.h>
+#include <kernel/kinfo.h>
 
 static inline void terminal_putc_at(size_t x, size_t y, uint8_t c);
 static inline void terminal_putentryat(size_t x, size_t y, uint16_t entry);
@@ -21,13 +22,14 @@ static size_t terminal_column;
 static uint8_t terminal_color;
 static uint16_t *terminal_buffer;
 
-void terminal_initialize(void) {
+void init_terminal(void) {
 	terminal_row = 0;
 	terminal_column = 0;
 	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
 	terminal_buffer = VGA_MEMORY;
-
     terminal_clear();
+
+    klog_info("Initialized terminal.", KLOG_SUCCESS);
 }
 
 void terminal_clear() {

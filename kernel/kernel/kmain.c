@@ -4,14 +4,10 @@
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
 
-#include <sys/io.h>
-#include <kernel/interrupts.h>
-#include <kernel/gdt.h>
+#include <kernel/system/idt.h>
+#include <kernel/system/gdt.h>
 
 #include <utils/debug.h>
-
-// Remove
-#include <string.h>
 
 static uint8_t stack[4096] = { 0 };
 void kernel_main(struct stivale2_struct *info);
@@ -33,14 +29,9 @@ struct stivale2_header header2 = {
 };
 
 void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
-	terminal_initialize();
-    klog_info("Initialized terminal.", KLOG_SUCCESS);
-    
-    initialize_gdt();
-    klog_info("Loaded global descriptor table.", KLOG_SUCCESS);
-
-    initialize_idt();
-    klog_info("Loaded interrupt descriptor table.", KLOG_SUCCESS);
+	init_terminal();
+    init_gdt();
+    init_idt();
 
     //print_splash_info(info);
 	

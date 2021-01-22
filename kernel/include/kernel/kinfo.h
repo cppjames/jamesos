@@ -7,7 +7,8 @@ enum klog_status {
     KLOG_SUCCESS,
     KLOG_INFO,
     KLOG_WARN,
-    KLOG_FAIL
+    KLOG_FAIL,
+    KLOG_PANIC
 };
 
 void print_splash_info(struct stivale2_struct *);
