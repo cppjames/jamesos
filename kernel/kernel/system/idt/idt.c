@@ -22,12 +22,12 @@ void init_idt() {
     idt_ptr_t idt_ptr = get_idt_ptr();
     asm volatile ("lidt %0" :: "m" (idt_ptr) : "memory");
     asm volatile ("sti");
-     
-    klog_info("Loaded interrupt descriptor table.", KLOG_SUCCESS);
+
+    klog_info("IDT loaded.", KLOG_SUCCESS);
 }
 
 static void remap_pic() {
-	outb(0x20, 0x11);
+    outb(0x20, 0x11);
     outb(0xA0, 0x11);
 
     outb(0x21, 0x20);
@@ -42,7 +42,7 @@ static void remap_pic() {
     outb(0x21, 0x00);
     outb(0xA1, 0x00);
 
-    klog_info("Remapped programmable interrupt controller.", KLOG_SUCCESS);
+    klog_info("PIC remapped.", KLOG_SUCCESS);
 }
 
 static void set_exception_entries() {

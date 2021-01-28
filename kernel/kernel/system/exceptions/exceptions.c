@@ -30,7 +30,6 @@ static char *exceptions[] = {
 void exception_handler(uint64_t exc) {
     klog_info("Unhandled exception", KLOG_PANIC);
     klog_debug("Unhandled exception %d: %s\n", exc, exceptions[exc]);
-    asm volatile ("hlt");
 }
 
 void exc0() {

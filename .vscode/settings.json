@@ -2,7 +2,9 @@
     "files.associations": {
         "atomic": "cpp",
         "cstdint": "cpp",
-        "ranges": "c"
+        "ranges": "c",
+        "future": "cpp",
+        "system_error": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled",
 }

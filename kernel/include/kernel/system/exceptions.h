@@ -26,15 +26,6 @@ void exc17();
 void exc18();
 void exc19();
 void exc20();
-void exc21();
-void exc22();
-void exc23();
-void exc24();
-void exc25();
-void exc26();
-void exc27();
-void exc28();
-void exc29();
 void exc30();
 
 #endif // EXCEPTIONS_H

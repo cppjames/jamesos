@@ -25,5 +25,5 @@ void init_gdt() {
     asm volatile ("lgdt %0" :: "m" (gdt_ptr) : "memory");
     reload_segments();
 
-    klog_info("Loaded global descriptor table.", KLOG_SUCCESS);
+    klog_info("GDT loaded.", KLOG_SUCCESS);
 }
