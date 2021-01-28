@@ -12,6 +12,6 @@ enum klog_status {
 };
 
 void print_splash_info(struct stivale2_struct *);
-void klog_info(char*, enum klog_status);
+void klog_info(enum klog_status, char*, ...);
 
 #endif // KINFO_H

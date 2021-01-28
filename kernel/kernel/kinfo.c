@@ -35,7 +35,7 @@ void print_splash_info(struct stivale2_struct *info) {
             setcolor(VGA_COLOR_LIGHT_GREY);
             printf("%s", " Firmware: ");
             setcolor(color3);
-            printf("%s\n", (((struct stivale2_struct_tag_firmware*)node)->flags & 1) ? "UEFI" : "BIOS");
+            printf("%s\n", (((struct stivale2_struct_tag_firmware*)node)->flags & 1) ? "BIOS" : "UEFI");
         }
 
         node = (struct stivale2_tag*)(node->next);
@@ -55,7 +55,7 @@ void print_splash_info(struct stivale2_struct *info) {
     setcolor(VGA_COLOR_LIGHT_GREY);
 }
 
-void klog_info(char* message, enum klog_status status) {
+void klog_info(enum klog_status status, char* format, ...) {
     setcolor(VGA_COLOR_WHITE);
     printf("[");
 
@@ -80,5 +80,10 @@ void klog_info(char* message, enum klog_status status) {
     printf("] ");
 
     setcolor(VGA_COLOR_LIGHT_GREY);
-    printf("%s\n", message);
+
+    va_list va;
+    va_start(va, format);
+    vprintf(format, va);
+    putchar('\n');
+    va_end(va);
 }

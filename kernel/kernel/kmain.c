@@ -34,6 +34,9 @@ void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
     init_idt();
 
     print_splash_info(info);
+
+    // TODO
+    //init_shell();
 	
     for (;;)
         asm volatile ("hlt");

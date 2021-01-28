@@ -28,7 +28,7 @@ static char *exceptions[] = {
 };
 
 void exception_handler(uint64_t exc) {
-    klog_info("Unhandled exception", KLOG_PANIC);
+    klog_info(KLOG_PANIC, "Unhandled exception");
     klog_debug("Unhandled exception %d: %s\n", exc, exceptions[exc]);
 }
 

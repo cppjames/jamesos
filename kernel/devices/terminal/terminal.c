@@ -29,7 +29,7 @@ void init_terminal(void) {
 	terminal_buffer = VGA_MEMORY;
     terminal_clear();
 
-    klog_info("Terminal initialized.", KLOG_SUCCESS);
+    klog_info(KLOG_SUCCESS, "Terminal initialized.");
 }
 
 void terminal_clear() {
@@ -105,4 +105,9 @@ static inline size_t get_index(size_t x, size_t y) {
 
 void terminal_setcolor(uint8_t color) {
 	terminal_color = color;
+}
+
+void terminal_mvcursor(size_t x, size_t y) {
+    terminal_column = x;
+    terminal_row = y;
 }

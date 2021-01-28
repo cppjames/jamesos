@@ -23,7 +23,7 @@ void init_idt() {
     asm volatile ("lidt %0" :: "m" (idt_ptr) : "memory");
     asm volatile ("sti");
 
-    klog_info("IDT loaded.", KLOG_SUCCESS);
+    klog_info(KLOG_SUCCESS, "IDT loaded.");
 }
 
 static void remap_pic() {
@@ -42,7 +42,7 @@ static void remap_pic() {
     outb(0x21, 0x00);
     outb(0xA1, 0x00);
 
-    klog_info("PIC remapped.", KLOG_SUCCESS);
+    klog_info(KLOG_SUCCESS, "PIC remapped.");
 }
 
 static void set_exception_entries() {

@@ -12,12 +12,21 @@
 extern "C" {
 #endif
 
-typedef int f_printch_t(int);
+#define printf printf_
+int printf_(const char* format, ...);
 
-int printf(const char* __restrict, ...);
-int f_printf(f_printch_t, const char* __restrict, ...);
-int vprintf(const char* __restrict, va_list parameters);
-int f_vprintf(f_printch_t, const char* __restrict, va_list parameters);
+#define sprintf sprintf_
+int sprintf_(char* buffer, const char* format, ...);
+
+#define snprintf  snprintf_
+#define vsnprintf vsnprintf_
+int  snprintf_(char* buffer, size_t count, const char* format, ...);
+int vsnprintf_(char* buffer, size_t count, const char* format, va_list va);
+
+#define vprintf vprintf_
+int vprintf_(const char* format, va_list va);
+
+int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
 
 int putchar(int);
 int puts(const char*);

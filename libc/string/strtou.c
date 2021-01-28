@@ -18,7 +18,6 @@ unsigned int strtou(const char str[], size_t base) {
         
         if (n > UINT32_MAX / 10 ||
             d > UINT32_MAX - n*10) {
-            // TODO: Set errno to EOVERFLOW.
             return n;
         }
 

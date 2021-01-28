@@ -38,7 +38,7 @@
 [✓] Add pointer support to [printf].
 [✓] Replace [printf] with [vprintf] and write [printf] as a wrapper function for [vprintf].
 [✓] Write a [printf] function that accepts a character-printer function.
-[] Steal the printf implementation from that GitHub repo.
+[✓] Steal the printf implementation from that GitHub repo.
 
 
 ┏━━━━━━━━┓
@@ -71,6 +71,10 @@
     [] Have a fixed buffer of characters for commands until dynamic memory allocation is a thing.
     [] Decide on command format. UNIX-style?
 
+  ➤ Memory
+
+[] bruh
+
 
   ➤ Debugging
 
@@ -78,7 +82,7 @@
 [✓] Write interface for logging to QEMU's 0xE9 port.
 [] Write interface for logging various debug messages separately from kernel-related logs.
 [] Learn how to connect GDB to QEMU.
-[] Rewrite [klog_info] so that the status parameter is first and the rest is VA_ARGS for vprintf
+[✓] Rewrite [klog_info] so that the status parameter is first and the rest is VA_ARGS for vprintf
 
 
 ┏━━━━━━━━━━━━━┓
@@ -97,6 +101,7 @@
 [] Put #include <cdefs.h> and extern "C" in all headers.
 [] Decide on header inclusion order.
 [] Decide on hex case.
+[] Decide on whether or not parameter names show up in header files.
 
   ➤ Design
 

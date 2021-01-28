@@ -2,6 +2,7 @@
 #include "keyboard_internal.h"
 
 #include <stdio.h>
+#include <kernel/kdebug.h>
 
 keyboard_state_t keyboard_state = (keyboard_state_t) {
     .key = { 0 },

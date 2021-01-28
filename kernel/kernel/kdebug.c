@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-int printch_port(int ch) {
+void printch_port(char ch, __attribute__((unused)) void* arg) {
     outb(0xE9, (uint8_t)ch);
-    return true;
 }

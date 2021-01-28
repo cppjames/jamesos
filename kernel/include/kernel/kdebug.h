@@ -9,10 +9,10 @@
 extern "C" {
 #endif
 
-int printch_port(int ch);
+void printch_port(char ch, __attribute__((unused)) void* arg);
 
 #define klog_debug(...) \
-    f_printf(printch_port, __VA_ARGS__)
+    fctprintf(printch_port, (void*)0, __VA_ARGS__)
 
 #ifdef __cplusplus
 }
