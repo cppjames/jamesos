@@ -5,68 +5,119 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-typedef enum {
-    KeyCode_Escape =        1,
-    KeyCode_1 =             2,
-    KeyCode_2 =             3,
-    KeyCode_3 =             4,
-    KeyCode_4 =             5,
-    KeyCode_5 =             6,
-    KeyCode_6 =             7,
-    KeyCode_7 =             8,
-    KeyCode_8 =             9,
-    KeyCode_9 =             10,
-    KeyCode_0 =             11,
-    KeyCode_Minus =         12,
-    KeyCode_Equals =        13,
-    KeyCode_Backspace =     14,
-    KeyCode_Tab =           15,
-    KeyCode_Line1_1 =       16,
-    KeyCode_Line1_2 =       17,
-    KeyCode_Line1_3 =       18,
-    KeyCode_Line1_4 =       19,
-    KeyCode_Line1_5 =       20,
-    KeyCode_Line1_6 =       21,
-    KeyCode_Line1_7 =       22,
-    KeyCode_Line1_8 =       23,
-    KeyCode_Line1_9 =       24,
-    KeyCode_Line1_10 =      25,
-    KeyCode_BracketL =      26,
-    KeyCode_BracketR =      27,
-    KeyCode_Return =        28,
-    KeyCode_Ctrl =          29,
-    KeyCode_Line2_1 =       30,
-    KeyCode_Line2_2 =       31,
-    KeyCode_Line2_3 =       32,
-    KeyCode_Line2_4 =       33,
-    KeyCode_Line2_5 =       34,
-    KeyCode_Line2_6 =       35,
-    KeyCode_Line2_7 =       36,
-    KeyCode_Line2_8 =       37,
-    KeyCode_Line2_9 =       38,
-    KeyCode_Semicolon =     39,
-    KeyCode_Quote =         40,
-    KeyCode_Backtick =      41,
-    KeyCode_ShiftL =        42,
-    KeyCode_Backslash =     43,
-    KeyCode_Line3_1 =       44,
-    KeyCode_Line3_2 =       45,
-    KeyCode_Line3_3 =       46,
-    KeyCode_Line3_4 =       47,
-    KeyCode_Line3_5 =       48,
-    KeyCode_Line3_6 =       49,
-    KeyCode_Line3_7 =       50,
-    KeyCode_Comma =         51,
-    KeyCode_Period =        52,
-    KeyCode_Slash =         53,
-    KeyCode_ShiftR =        54,
-    KeyCode_Asterix =       55,
-    KeyCode_Alt =           56,
-    KeyCode_Space =         57,
-    KeyCode_CapsLock =      58,
+typedef enum key_code_t {
+    KeyCode_None,
+    KeyCode_Escape,
+    KeyCode_1,
+    KeyCode_2,
+    KeyCode_3,
+    KeyCode_4,
+    KeyCode_5,
+    KeyCode_6,
+    KeyCode_7,
+    KeyCode_8,
+    KeyCode_9,
+    KeyCode_0,
+    KeyCode_Minus,
+    KeyCode_Equals,
+    KeyCode_Backspace,
+    KeyCode_Tab,
+    KeyCode_Line1_1,
+    KeyCode_Line1_2,
+    KeyCode_Line1_3,
+    KeyCode_Line1_4,
+    KeyCode_Line1_5,
+    KeyCode_Line1_6,
+    KeyCode_Line1_7,
+    KeyCode_Line1_8,
+    KeyCode_Line1_9,
+    KeyCode_Line1_10,
+    KeyCode_BracketL,
+    KeyCode_BracketR,
+    KeyCode_Return,
+    KeyCode_CtrlL,
+    KeyCode_Line2_1,
+    KeyCode_Line2_2,
+    KeyCode_Line2_3,
+    KeyCode_Line2_4,
+    KeyCode_Line2_5,
+    KeyCode_Line2_6,
+    KeyCode_Line2_7,
+    KeyCode_Line2_8,
+    KeyCode_Line2_9,
+    KeyCode_Semicolon,
+    KeyCode_Quote,
+    KeyCode_Backtick,
+    KeyCode_ShiftL,
+    KeyCode_Backslash,
+    KeyCode_Line3_1,
+    KeyCode_Line3_2,
+    KeyCode_Line3_3,
+    KeyCode_Line3_4,
+    KeyCode_Line3_5,
+    KeyCode_Line3_6,
+    KeyCode_Line3_7,
+    KeyCode_Comma,
+    KeyCode_Period,
+    KeyCode_Slash,
+    KeyCode_ShiftR,
+    KeyCode_Asterix,
+    KeyCode_AltL,
+    KeyCode_Space,
+    KeyCode_CapsLock,
+    KeyCode_F1,
+    KeyCode_F2,
+    KeyCode_F3,
+    KeyCode_F4,
+    KeyCode_F5,
+    KeyCode_F6,
+    KeyCode_F7,
+    KeyCode_F8,
+    KeyCode_F9,
+    KeyCode_F10,
+    KeyCode_F11,
+    KeyCode_F12,
+    KeyCode_PrevTrack,
+    KeyCode_NextTrack,
+    KeyCode_CtrlR,
+    KeyCode_Mute,
+    KeyCode_Calculator,
+    KeyCode_Play,
+    KeyCode_Stop,
+    KeyCode_VolumeDown,
+    KeyCode_VolumeUp,
+    KeyCode_WebHome,
+    KeyCode_AltR,
+    KeyCode_Home,
+    KeyCode_UpArrow,
+    KeyCode_PageUp,
+    KeyCode_LeftArrow,
+    KeyCode_RightArrow,
+    KeyCode_End,
+    KeyCode_DownArrow,
+    KeyCode_PageDown,
+    KeyCode_Insert,
+    KeyCode_Delete,
+    KeyCode_LeftGUI,
+    KeyCode_RightGUI,
+    KeyCode_Apps,
+    KeyCode_Power,
+    KeyCode_Sleep,
+    KeyCode_Wake,
+    KeyCode_WebSearch,
+    KeyCode_WebFavorites,
+    KeyCode_WebRefresh,
+    KeyCode_WebStop,
+    KeyCode_WebForward,
+    KeyCode_WebBack,
+    KeyCode_MyComputer,
+    KeyCode_Email,
+    KeyCode_MediaSelect,
+    KeyCode_PrintScreen,
+    KeyCode_Pause
 } key_code_t;
 
-typedef enum {
+typedef enum key_flag_t {
     KeyFlag_IsKey =     0x01,
     KeyFlag_Shift =     0x02,
     KeyFlag_Control =   0x04,
@@ -74,22 +125,27 @@ typedef enum {
     KeyFlag_CapsLock =  0x10
 } key_flag_t;
 
-typedef struct {
+typedef struct key_t {
     key_code_t code;
     bool press;
+    bool keypad;
 } key_t;
 
-typedef struct {
+typedef struct key_event_t {
     key_t key;
     uint16_t flags;
-} keyboard_state_t;
+} key_event_t;
 
-extern keyboard_state_t keyboard_state;
 extern const char KEY_ASCII_MAP[];
 extern const char KEY_ASCII_MAP_UPPER[];
 
 key_t codeToKey(unsigned char code);
 void sendKey(key_t key);
+
+bool isKeyEvent();
+key_event_t getKeyEvent();
+bool keyEventUpper(key_event_t event);
+unsigned char keyEventToAscii(key_event_t event);
 
 #define keyToAscii(key)      KEY_ASCII_MAP[(key).code]
 #define keyToAsciiUpper(key) KEY_ASCII_MAP_UPPER[(key).code]
@@ -100,8 +156,8 @@ void sendKey(key_t key);
 #define isAscii(key)  (!!keyToAscii(key))
 
 #define isShift(key)    ((key).code == KeyCode_ShiftL || (key).code == KeyCode_ShiftR)
-#define isCtrl(key)     ((key).code == KeyCode_Ctrl)
-#define isAlt(key)      ((key).code == KeyCode_Alt)
+#define isCtrl(key)     ((key).code == KeyCode_CtrlL  || (key).code == KeyCode_CtrlR)
+#define isAlt(key)      ((key).code == KeyCode_AltL   || (key).code == KeyCode_AltR)
 #define isMeta(key)     ((key).code == KeyCode_Meta)
 #define isCapsLock(key) ((key).code == KeyCode_CapsLock)
 

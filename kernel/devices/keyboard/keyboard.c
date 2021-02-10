@@ -4,30 +4,26 @@
 #include <stdio.h>
 #include <kernel/kdebug.h>
 
-keyboard_state_t keyboard_state = (keyboard_state_t) {
+static key_event_t keyboard_state = (key_event_t) {
     .key = { 0 },
     .flags = 0x00
 };
 
-key_t codeToKey(unsigned char code) {
-    return (key_t) {
-        .code = (key_code_t)((code <= 128) ? code : (code - 128)),
-        .press = code <= 128
-    };
-}
+static event_queue_t event_queue = (event_queue_t) {
+	.buffer = {},
+	.current = 0,
+	.end = 0
+};
 
 void sendKey(key_t key) {
     _updateStateMachine(key);
-
-    if (key.press && isAscii(key)) {
-        unsigned char ch = _getStateMachineUpper(key) ? keyToAsciiUpper(key) : keyToAscii(key);
-        putchar(ch);
-    }
+    _sendStateMachine();
 }
 
 void _updateStateMachine(key_t key) {
     _updateModifiers(key);
     _updateKeySwitches(key);
+    keyboard_state.key = key;
 }
 
 void _updateModifiers(key_t key) {
@@ -35,7 +31,10 @@ void _updateModifiers(key_t key) {
 
     if      (isShift(key)) flag = KeyFlag_Shift;
     else if (isCtrl(key))  flag = KeyFlag_Control;
-    else if (isAlt(key))   flag = KeyCode_Alt;
+    else if (isAlt(key))   flag = KeyFlag_Alt;
+
+    if (!flag)
+        return;
 
     if (key.press)
         keyboard_state.flags |= flag;
@@ -50,16 +49,46 @@ void _updateKeySwitches(key_t key) {
 
     if (isCapsLock(key)) flag = KeyFlag_CapsLock;
 
+    if (!flag)
+        return;
+
     if (keyboard_state.flags & flag)
         keyboard_state.flags &= ~flag;
     else
         keyboard_state.flags |= flag;
 }
 
-bool _getStateMachineUpper(key_t key) {
-    bool capslock = keyboard_state.flags & KeyFlag_CapsLock;
-    bool shift = keyboard_state.flags & KeyFlag_Shift;
-    bool upper = capslock && isLetter(key);
+void _sendStateMachine() {
+    event_queue.buffer[event_queue.end] = keyboard_state;
+	event_queue.end = nextEventQueuePos(event_queue.end);
+}
+
+bool isKeyEvent() {
+    return event_queue.current != event_queue.end;
+}
+
+key_event_t getKeyEvent() {
+    if (isKeyEvent()) {
+        size_t current = event_queue.current;
+		key_event_t ev = event_queue.buffer[current];
+		event_queue.current = nextEventQueuePos(current);
+		return ev;
+	}
+
+	return (key_event_t) {
+        .key = (key_t) { .code = KeyCode_None },
+        .flags = 0x0
+    };
+}
+
+unsigned char keyEventToAscii(key_event_t event) {
+    return keyEventUpper(event) ? keyToAsciiUpper(event.key) : keyToAscii(event.key);
+}
+
+bool keyEventUpper(key_event_t event) {
+    bool capslock = event.flags & KeyFlag_CapsLock;
+    bool shift = event.flags & KeyFlag_Shift;
+    bool upper = capslock && isLetter(event.key);
     return shift ? !upper : upper;
 }
 
@@ -171,7 +200,7 @@ const char KEY_ASCII_MAP_UPPER[256] = {
     [KeyCode_BracketL] = '{',
     [KeyCode_BracketR] = '}',
 
-    [KeyCode_Semicolon] = ';',
+    [KeyCode_Semicolon] = ':',
     [KeyCode_Quote] =     '\"',
     [KeyCode_Backslash] = '|',
 

@@ -4,7 +4,17 @@
         "cstdint": "cpp",
         "ranges": "c",
         "future": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "array": "c",
+        "hash_map": "c",
+        "deque": "c",
+        "list": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "unordered_set": "c",
+        "vector": "c",
+        "string_view": "c",
+        "initializer_list": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled",
 }

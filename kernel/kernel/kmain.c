@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
+#include <utils/debug.h>
 
 #include <kernel/system/idt.h>
 #include <kernel/system/gdt.h>
-
-#include <utils/debug.h>
+#include <kernel/shell.h>
 
 static uint8_t stack[4096] = { 0 };
 void kernel_main(struct stivale2_struct *info);
@@ -35,8 +35,7 @@ void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
 
     print_splash_info(info);
 
-    // TODO
-    //init_shell();
+    init_shell();
 	
     for (;;)
         asm volatile ("hlt");

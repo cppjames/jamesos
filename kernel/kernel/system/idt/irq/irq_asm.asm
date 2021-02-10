@@ -34,30 +34,50 @@
     pop rax
 %endmacro
 
-%macro handle_irq 1
+%macro eoi_pic_master 0
+    mov al, 0x20
+    out 0x20, al
+%endmacro
+
+%macro eoi_pic_slave 0
+    mov al, 0x20
+    out 0xA0, al
+    out 0x20, al
+%endmacro
+
+%macro handle_irq 2
     extern irq%1_handler
     global irq%1
     irq%1:
         pushaq
         cld
         call irq%1_handler
+        %2
         popaq
         iretq
 %endmacro
 
-handle_irq 0
-handle_irq 1
-handle_irq 2
-handle_irq 3
-handle_irq 4
-handle_irq 5
-handle_irq 6
-handle_irq 7
-handle_irq 8
-handle_irq 9
-handle_irq 10
-handle_irq 11
-handle_irq 12
-handle_irq 13
-handle_irq 14
-handle_irq 15
+%macro handle_irq_master 1
+    handle_irq %1, eoi_pic_master
+%endmacro
+
+%macro handle_irq_slave 1
+    handle_irq %1, eoi_pic_slave
+%endmacro
+
+handle_irq_master 0
+handle_irq_master 1
+handle_irq_master 2
+handle_irq_master 3
+handle_irq_master 4
+handle_irq_master 5
+handle_irq_master 6
+handle_irq_master 7
+handle_irq_slave  8
+handle_irq_slave  9
+handle_irq_slave  10
+handle_irq_slave  11
+handle_irq_slave  12
+handle_irq_slave  13
+handle_irq_slave  14
+handle_irq_slave  15

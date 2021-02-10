@@ -1,0 +1,6 @@
+#ifndef SHELL_INTERNAL_H
+#define SHELL_INTERNAL_H
+
+#define COMMAND_SIZE 4096
+
+#endif // SHELL_INTERNAL_H
