@@ -7,6 +7,7 @@
 
 #include <kernel/system/idt.h>
 #include <kernel/system/gdt.h>
+#include <kernel/system/memory.h>
 #include <kernel/shell.h>
 
 static uint8_t stack[4096] = { 0 };
@@ -32,6 +33,7 @@ void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
 	init_terminal();
     init_gdt();
     init_idt();
+    init_paging();
 
     print_splash_info(info);
 

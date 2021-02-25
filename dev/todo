@@ -61,15 +61,16 @@
 [✓] Clean up integer types in the functions that load the IDT.
 [✓] Fix the IDT.
 [] Write a basic command prompt.
-    [] Have a fixed buffer of characters for commands until dynamic memory allocation exists.
+    [✓] Have a fixed buffer of characters for commands until dynamic memory allocation exists.
     [] Decide on command format. UNIX-style?
-    [] Render written command again each time it is modified.
-    [] Support for character deletion
-    [] Cursor, move with arrow keys
+    [✓] Render written command again each time it is modified.
+    [✓] Support for character deletion
+    [✓] Cursor, move with arrow keys
     [] Shell prompt, make it colorful
     [] Parse command, split into tokens
     [] Send command (program name, arguments)
-    [] Key combinations for cursore movement
+    [] Key combinations for cursor movement
+    [] Fix newlines with terminal scrolling.
 
   ➤ Devices
 
@@ -90,7 +91,9 @@
 
   ➤ Memory
 
-[] bruh
+[✓] Set up page frame allocator.
+    [] Fix allocator algorithm.
+    [✓] Use bitmap instead of bytemap.
 
   ➤ Debugging
 
@@ -107,18 +110,21 @@
 
   ➤ Code Style
 
-[] Decide on pointer binding direction (and actually use it).
+[✓] Decide on pointer binding direction (and actually use it).
 [✓] Replace fixed width integer types with normal integer types (for better portability).
 [✓] Decide on tabs/spaces.
 [] Don't destroy input parameters.
-[] Consistent naming convention for kernel-related enumerations.
+[✓] Consistent naming convention for kernel-related enumerations.
 [] Consistent naming convention for libc implementations.
 [] Replace tabs with spaces.
 [] Put #include <cdefs.h> and extern "C" in all headers.
-[] Decide on header inclusion order.
+[✓] Decide on header inclusion order.
 [] Decide on hex case.
-[] Decide on whether or not parameter names show up in header files.
+[✓] Decide on whether or not parameter names show up in header files.
 [] Replace tabs in all files with spaces.
+[] Rename all functions with camelCase.
+[] Apply header inclusion order to all files.
+[] Replace all type_t names with their PascalCase equivalent (you don't wanna mess with POSIX).
 
   ➤ Design
 

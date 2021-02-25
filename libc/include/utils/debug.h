@@ -14,22 +14,22 @@
 #define _STRGY(X) _STRINGIFY(X)
 
 #define _TRACE_PRINT_H() \
-    do { setcolor(VGA_COLOR_LIGHT_CYAN); \
+    do { setcolor(VgaColor_LightCyan); \
         printf("%s() ", __func__); \
-        setcolor(VGA_COLOR_LIGHT_GREY); \
+        setcolor(VgaColor_LightGray); \
         printf("%s", __FILE__); \
-        setcolor(VGA_COLOR_DARK_GREY); \
+        setcolor(VgaColor_DarkGray); \
         printf(":"); \
-        setcolor(VGA_COLOR_LIGHT_BROWN); \
+        setcolor(VgaColor_LightBrown); \
         printf("%s", _STRGY(__LINE__)); \
-        setcolor(VGA_COLOR_DARK_GREY); \
+        setcolor(VgaColor_DarkGray); \
         printf(": "); \
     } while (0)
 
 #define _TRACE_PRINTF_H(...) \
-    do { setcolor(VGA_COLOR_LIGHT_GREY); \
+    do { setcolor(VgaColor_LightGray); \
         _TRACE_PRINT_H(); \
-        setcolor(VGA_COLOR_WHITE); \
+        setcolor(VgaColor_White); \
         printf(__VA_ARGS__); \
         printf("\n"); \
     } while (0)

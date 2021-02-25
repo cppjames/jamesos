@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <devices/terminal.h>
 
-void setcolor(enum vga_color color) {
+void setcolor(enum VgaColor color) {
 #if defined(__is_libk)
-	terminal_setcolor(vga_entry_color(color, VGA_COLOR_BLACK));
+	terminal_setcolor(vga_entry_color(color, VgaColor_Black));
 #endif
 }

@@ -4,30 +4,30 @@
 #include <stdio.h>
 #include <kernel/kdebug.h>
 
-static key_event_t keyboard_state = (key_event_t) {
+static KeyEvent keyboard_state = (KeyEvent) {
     .key = { 0 },
     .flags = 0x00
 };
 
-static event_queue_t event_queue = (event_queue_t) {
+static EventQueue event_queue = (EventQueue) {
 	.buffer = {},
 	.current = 0,
 	.end = 0
 };
 
-void sendKey(key_t key) {
+void sendKey(Key key) {
     _updateStateMachine(key);
     _sendStateMachine();
 }
 
-void _updateStateMachine(key_t key) {
+void _updateStateMachine(Key key) {
     _updateModifiers(key);
     _updateKeySwitches(key);
     keyboard_state.key = key;
 }
 
-void _updateModifiers(key_t key) {
-    key_flag_t flag = 0x0;
+void _updateModifiers(Key key) {
+    KeyFlag flag = 0x0;
 
     if      (isShift(key)) flag = KeyFlag_Shift;
     else if (isCtrl(key))  flag = KeyFlag_Control;
@@ -42,10 +42,10 @@ void _updateModifiers(key_t key) {
         keyboard_state.flags &= ~flag;
 }
 
-void _updateKeySwitches(key_t key) {
+void _updateKeySwitches(Key key) {
     if (!key.press) return;
 
-    key_flag_t flag = 0x0;
+    KeyFlag flag = 0x0;
 
     if (isCapsLock(key)) flag = KeyFlag_CapsLock;
 
@@ -67,25 +67,25 @@ bool isKeyEvent() {
     return event_queue.current != event_queue.end;
 }
 
-key_event_t getKeyEvent() {
+KeyEvent getKeyEvent() {
     if (isKeyEvent()) {
         size_t current = event_queue.current;
-		key_event_t ev = event_queue.buffer[current];
+		KeyEvent ev = event_queue.buffer[current];
 		event_queue.current = nextEventQueuePos(current);
 		return ev;
 	}
 
-	return (key_event_t) {
-        .key = (key_t) { .code = KeyCode_None },
+	return (KeyEvent) {
+        .key = (Key) { .code = KeyCode_None },
         .flags = 0x0
     };
 }
 
-unsigned char keyEventToAscii(key_event_t event) {
+unsigned char keyEventToAscii(KeyEvent event) {
     return keyEventUpper(event) ? keyToAsciiUpper(event.key) : keyToAscii(event.key);
 }
 
-bool keyEventUpper(key_event_t event) {
+bool keyEventUpper(KeyEvent event) {
     bool capslock = event.flags & KeyFlag_CapsLock;
     bool shift = event.flags & KeyFlag_Shift;
     bool upper = capslock && isLetter(event.key);

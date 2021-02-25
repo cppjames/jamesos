@@ -14,9 +14,9 @@ uint64_t gdt[3] = {
 typedef struct {
     uint16_t limit;
     uint64_t base;
-} __attribute__((packed)) gdt_ptr_t;
+} __attribute__((packed)) GdtPtr;
 
-gdt_ptr_t gdt_ptr = (gdt_ptr_t) {
+GdtPtr gdt_ptr = (GdtPtr) {
     .limit = sizeof(gdt) - 1,
     .base = (uint64_t)&gdt[0]
 };

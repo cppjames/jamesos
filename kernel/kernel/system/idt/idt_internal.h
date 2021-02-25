@@ -18,12 +18,12 @@ typedef struct {
 	uint16_t offset_middlebits;
     uint32_t offset_higherbits;
     uint32_t zero_2;
-} __attribute__((packed)) idt_entry_t;
+} __attribute__((packed)) IdtEntry;
 
 typedef struct {
     uint16_t limit;
     uint64_t base;
-} __attribute__((packed)) idt_ptr_t;
+} __attribute__((packed)) IdtPtr;
 
 void irq0();
 void irq1();

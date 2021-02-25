@@ -30,7 +30,7 @@ int fctprintf(void (*out)(char character, void* arg), void* arg, const char* for
 
 int putchar(int);
 int puts(const char*);
-void setcolor(enum vga_color);
+void setcolor(enum VgaColor);
 
 #ifdef __cplusplus
 }

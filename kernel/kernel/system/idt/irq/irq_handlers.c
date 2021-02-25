@@ -21,23 +21,14 @@ void irq0_handler(void) {
 void irq1_handler(void) {
     unsigned char scan_code = inb(0x60);
 
-    key_t key = codeToKey(scan_code);
+    Key key = codeToKey(scan_code);
     if (key.code == KeyCode_None)
         return;
-
-    if (key.code == KeyCode_LeftArrow && key.press)
-        printf("<");
-    if (key.code == KeyCode_RightArrow && key.press)
-        printf(">");
-    if (key.code == KeyCode_UpArrow && key.press)
-        printf("^");
-    if (key.code == KeyCode_DownArrow && key.press)
-        printf("v");
 
     sendKey(key);
 
     if (key.code == KeyCode_Pause) {
-        key_t key_release = key;
+        Key key_release = key;
         key_release.press = false;
         sendKey(key_release);
     }

@@ -14,7 +14,8 @@
         "unordered_set": "c",
         "vector": "c",
         "string_view": "c",
-        "initializer_list": "c"
+        "initializer_list": "c",
+        "random": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled",
 }

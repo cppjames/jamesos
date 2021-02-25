@@ -1,7 +1,7 @@
 DEFAULT_HOST!=../default-host.sh
 HOST?=DEFAULT_HOST
 
-CFLAGS?=-O2 -g -std=gnu11 
+CFLAGS?=-O2 -g -std=gnu17
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=

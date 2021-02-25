@@ -25,7 +25,7 @@ static uint16_t *terminal_buffer;
 void init_terminal(void) {
 	terminal_row = 0;
 	terminal_column = 0;
-	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+	terminal_color = vga_entry_color(VgaColor_LightGray, VgaColor_Black);
 	terminal_buffer = VGA_MEMORY;
     terminal_clear();
 
@@ -84,7 +84,7 @@ static void terminal_scroll(void) {
             terminal_putentryat(x, y, terminal_entryat(x, y+1));
     
     // TODO: Looks ugly. Maybe terminal_fill_line?
-    uint16_t entry = vga_entry(' ', vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
+    uint16_t entry = vga_entry(' ', vga_entry_color(VgaColor_LightGray, VgaColor_Black));
     for (size_t x = 0; x < VGA_WIDTH; x++)
         terminal_putentryat(x, VGA_HEIGHT-1, entry);
 }
@@ -110,4 +110,12 @@ void terminal_setcolor(uint8_t color) {
 void terminal_mvcursor(size_t x, size_t y) {
     terminal_column = x;
     terminal_row = y;
+}
+
+size_t terminal_cursor_x() {
+    return terminal_column;
+}
+
+size_t terminal_cursor_y() {
+    return terminal_row;
 }

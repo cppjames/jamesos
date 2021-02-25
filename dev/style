@@ -1,0 +1,63 @@
+> #include order
+    
+    1. Main module header (that is being implemented)
+    2. Local project headers
+        2.a. Directly relevant headers (meant for implementation only)
+        2.b. Other useful project headers, in order of relevance
+    3. Standard library headers (in order of relevance)
+
+    |   #include <kernel/shell.h>
+    |
+    |   #include "shell_internal.h"
+    |   #include <devices/keyboard.h>
+    |   #include <devices/terminal.h>
+    |
+    |   #include <stdio.h>
+    |   #include <string.h>
+    |   #include <stdbool.h>
+
+> Pointer binding direction
+
+    Always right, space-separated from the type, unless the type is isolated (such as in a cast).
+    
+    |   char *ptr = (char*)malloc(1);
+    |   struct Node *nextNode(struct Node *node);
+
+> Names
+
+    - Constants:   MACRO_CASE
+    - Variables:   snake_case
+    - Functions:   camelCase
+    - Type names:  PascalCase
+    - Enum names:  PascalCase
+        - Members: EnumName_PascalCase
+
+    |   #define BUFFER_SIZE 256
+    |   int countWords(char *string_to_search);
+    |
+    |   KeyCode key_code = KeyCode_DownArrow;
+    |   Key key = (Key) { .code = key_code };
+
+> Whitespace
+
+    - There is always one space before and after mathematical and assignment operators.
+    - There is no space after the opening and before the closing round and square brackets.
+    - There is no space between the function name and the call operator.
+    - There is no space after the cast operator.
+    - There is always one space after function header brackets and function definition curly brackets.
+    - There is always one space after opening and before closing curly brackets (in context of initializers).
+    - There is always one space in compound literals between the type and the curly brackets.
+    - Compound literals may be expanded to multiple lines, but should usually be one line.
+    - There is always a new line after beginning of code block.
+    - In context of code blocks, closing curly brackets are always on a separate line after the statements in the block.
+    - The closing curly brackets can be followed by a continuation of the code block (such as if-else or do-while).
+
+    |   int distance = (int)sqrt((x * x) + (y * y));
+    |   
+    |   void foo() {
+    |       if (condition) {
+    |           do {
+    |               Key key = (key) { .code = codes[distance] };
+    |           } while (true);
+    |       }
+    |   }

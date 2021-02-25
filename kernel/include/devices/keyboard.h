@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-typedef enum key_code_t {
+typedef enum KeyCode {
     KeyCode_None,
     KeyCode_Escape,
     KeyCode_1,
@@ -115,37 +115,37 @@ typedef enum key_code_t {
     KeyCode_MediaSelect,
     KeyCode_PrintScreen,
     KeyCode_Pause
-} key_code_t;
+} KeyCode;
 
-typedef enum key_flag_t {
+typedef enum KeyFlag {
     KeyFlag_IsKey =     0x01,
     KeyFlag_Shift =     0x02,
     KeyFlag_Control =   0x04,
     KeyFlag_Alt =       0x08,
     KeyFlag_CapsLock =  0x10
-} key_flag_t;
+} KeyFlag;
 
-typedef struct key_t {
-    key_code_t code;
+typedef struct Key {
+    KeyCode code;
     bool press;
     bool keypad;
-} key_t;
+} Key;
 
-typedef struct key_event_t {
-    key_t key;
+typedef struct KeyEvent {
+    Key key;
     uint16_t flags;
-} key_event_t;
+} KeyEvent;
 
 extern const char KEY_ASCII_MAP[];
 extern const char KEY_ASCII_MAP_UPPER[];
 
-key_t codeToKey(unsigned char code);
-void sendKey(key_t key);
+Key codeToKey(unsigned char code);
+void sendKey(Key key);
 
 bool isKeyEvent();
-key_event_t getKeyEvent();
-bool keyEventUpper(key_event_t event);
-unsigned char keyEventToAscii(key_event_t event);
+KeyEvent getKeyEvent();
+bool keyEventUpper(KeyEvent event);
+unsigned char keyEventToAscii(KeyEvent event);
 
 #define keyToAscii(key)      KEY_ASCII_MAP[(key).code]
 #define keyToAsciiUpper(key) KEY_ASCII_MAP_UPPER[(key).code]

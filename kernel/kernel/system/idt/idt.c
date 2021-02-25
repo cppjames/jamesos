@@ -10,16 +10,16 @@ static void remap_pic();
 static void set_exception_entries();
 static void set_irq_entries();
 static inline void set_idt_entry(uint8_t, uint64_t);
-static inline idt_ptr_t get_idt_ptr();
+static inline IdtPtr get_idt_ptr();
 
-idt_entry_t idt[256];
+IdtEntry idt[256];
 
 void init_idt() {
     remap_pic();
 
     set_exception_entries();
     set_irq_entries();
-    idt_ptr_t idt_ptr = get_idt_ptr();
+    IdtPtr idt_ptr = get_idt_ptr();
     asm volatile ("lidt %0" :: "m" (idt_ptr) : "memory");
     asm volatile ("sti");
 
@@ -90,7 +90,7 @@ static void set_irq_entries() {
 }
 
 static inline void set_idt_entry(uint8_t index, uint64_t irq_address) {
-    idt[index] = (idt_entry_t) {
+    idt[index] = (IdtEntry) {
         .offset_lowerbits =   irq_address & OFFSET_MASK_LOWER,
         .offset_middlebits = (irq_address & OFFSET_MASK_MIDDLE) >> 16,
         .offset_higherbits = (irq_address & OFFSET_MASK_HIGHER) >> 32,
@@ -103,8 +103,8 @@ static inline void set_idt_entry(uint8_t index, uint64_t irq_address) {
     };
 }
 
-static inline idt_ptr_t get_idt_ptr() {
-    return (idt_ptr_t) {
+static inline IdtPtr get_idt_ptr() {
+    return (IdtPtr) {
         .limit = sizeof(idt) - 1,
         .base = (uint64_t)idt
     };

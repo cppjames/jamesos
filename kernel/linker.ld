@@ -21,11 +21,15 @@ SECTIONS
     .data ALIGN(4K) :
     {
         KEEP(*(.data*))
+        end_data = .;
     }
 
     .bss ALIGN(4K) :
     {
+        sbss = .;
         KEEP(*(COMMON))
         KEEP(*(.bss*))
+        ebss = .;
+	    kernel_end = .;
     }
 }
