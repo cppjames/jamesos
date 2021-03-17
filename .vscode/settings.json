@@ -18,4 +18,15 @@
         "random": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled",
+
+    "workbench.colorCustomizations": {
+    //    Mayukai Alucard
+    //    "editor.background": "#1f222c"
+    //
+    //    Bluloco Dark
+    //    "editor.background": "#22252c"
+    //
+    //    An Old Hope Classic
+    //    "editor.background": "#26272c"
+    }
 }
