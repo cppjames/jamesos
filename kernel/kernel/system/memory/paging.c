@@ -2,11 +2,14 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #include <kernel/kdebug.h>
 
 #define PAGE_SIZE 4096
 #define ENTRY_COUNT 512
+
+static uint64_t extraBits(Perms perm, MemoryType mt, size_t page_size, bool bottom_level);
 
 extern void enablePAE();
 static void loadPageDirectory(uint64_t *page_dir);
@@ -22,12 +25,12 @@ void init_paging() {
     for (size_t i = 0; i < ENTRY_COUNT; i++)
         page_dir[i] = 0x00000002;
 
-    first_page_table = (uint64_t*)kallocFrame();
+    /*first_page_table = (uint64_t*)kallocFrame();
     for (size_t i = 0; i < ENTRY_COUNT; i++)
         first_page_table[i] = (i * 0x1000) | 0b11;
 
     page_dir[0] = ((uint64_t)first_page_table) | 0b11;
-    page_dir_ptr_tab[0] = (uint64_t)page_dir | 1;
+    page_dir_ptr_tab[0] = (uint64_t)page_dir | 1;*/
 
     klog_debug("%p\n", (void*)page_dir_ptr_tab);
 
@@ -45,18 +48,15 @@ void loadPageDirectory(uint64_t *page_dir) {
  *********************************/
 
 void map(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType mt) {
-    
+
     size += PAGE_SIZE - 1;
     size &= ~(PAGE_SIZE - 1);
 
-    //var root: table_ptr = cr3;
+    const uint16_t levels = 4;
+    const uint8_t base_bits = 12;
 
-    //const levels = 4
-
-    //const base_bits = @intCast(u6, base_bits);
-
-    //const small_bits = extra_bits(perm, mt, page_size, true);
-    //const large_bits = extra_bits(perm, mt, page_size, false);
+    const small_bits = extra_bits(perm, mt, page_size, true);
+    const large_bits = extra_bits(perm, mt, page_size, false);
 
     //while(size != 0) {
     //    var current_step_size = page_size << @intCast(u6, (base_bits - 3) * (levels - 1));
@@ -97,4 +97,20 @@ void map(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType m
     //    paddr += current_step_size;
     //    size -= current_step_size;
     //}
+}
+
+static uint64_t extraBits(Perms perm, MemoryType mt, size_t page_size, bool bottom_level) {
+    uint64_t bits = 0x1 | (1 << 5) | (1 << 10);
+
+    // Set the walk bit
+    if (page_size < 0x10000 and botlevel)
+        bits |= 2;
+
+    if (perm & Perm_W == 0) bits |= 1 << 7;
+    if (perm & Perm_X == 0) bits |= 1 << 54;
+
+    if (mt == MemoryType_Memory) bits |= 0 << 2 | 2 << 8 | 1 << 11;
+    if (mt == MemoryType_MMIO)   bits |= 1 << 2 | 2 << 8;
+
+    return bits;
 }
