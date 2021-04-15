@@ -71,6 +71,7 @@
     [] Send command (program name, arguments)
     [] Key combinations for cursor movement
     [] Fix newlines with terminal scrolling.
+[] Fix exception handlers that use the stack.
 
   ➤ Devices
 
