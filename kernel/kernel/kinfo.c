@@ -1,6 +1,35 @@
 #include <kernel/stivale2.h>
 #include <kernel/kinfo.h>
+#include <kernel/kdebug.h>
+#include <devices/terminal.h>
 #include <stdio.h>
+
+struct stivale2_struct_tag_memmap *memmap_tag = { 0 };
+
+inline struct stivale2_struct_tag_memmap *get_memmap_tag() {
+    return memmap_tag;
+}
+
+void parse_stivale_info(struct stivale2_struct *info) {
+    struct stivale2_tag *node = (struct stivale2_tag*)info->tags;
+    while (node) {
+        if (node->identifier == STIVALE2_STRUCT_TAG_MEMMAP_ID) {
+            memmap_tag = (struct stivale2_struct_tag_memmap*)node;
+            
+            // Print out all of the memory map entries to debug log
+            uint64_t entry_count = memmap_tag->entries;
+            for (uint64_t entry_idx = 0; entry_idx < entry_count; entry_idx++) {
+                klog_debug("0x%016zX -> (0x%zX bytes) : Type 0x%zX\n",
+                    memmap_tag->memmap[entry_idx].base,
+                    memmap_tag->memmap[entry_idx].length,
+                    (uint64_t)memmap_tag->memmap[entry_idx].type
+                );
+            }
+        }
+
+        node = (struct stivale2_tag*)(node->next);
+    }
+}
 
 void print_splash_info(struct stivale2_struct *info) {
     const enum VgaColor color1 = VgaColor_White;
@@ -8,7 +37,7 @@ void print_splash_info(struct stivale2_struct *info) {
     const enum VgaColor color3 = VgaColor_LightCyan;
 
     setcolor(color1);
-    printf("%s", "\nWelcome to...\n");
+    puts("\nWelcome to...\n");
 
     char* splash =
     "&     _                            &___  ____  \n"
@@ -55,7 +84,10 @@ void print_splash_info(struct stivale2_struct *info) {
     setcolor(VgaColor_LightGray);
 }
 
-void klog_info(enum klog_status status, char* format, ...) {
+void klog_info(enum klog_status status, char *format, ...) {
+    va_list va;
+    va_start(va, format);
+
     setcolor(VgaColor_White);
     printf("[");
 
@@ -81,9 +113,8 @@ void klog_info(enum klog_status status, char* format, ...) {
 
     setcolor(VgaColor_LightGray);
 
-    va_list va;
-    va_start(va, format);
     vprintf(format, va);
     putchar('\n');
+
     va_end(va);
 }

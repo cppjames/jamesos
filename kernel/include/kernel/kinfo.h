@@ -2,6 +2,7 @@
 #define KINFO_H
 
 #include <kernel/stivale2.h>
+#include <stdarg.h>
 
 enum klog_status {
     KLOG_SUCCESS,
@@ -13,5 +14,8 @@ enum klog_status {
 
 void print_splash_info(struct stivale2_struct *);
 void klog_info(enum klog_status, char*, ...);
+
+void parse_stivale_info(struct stivale2_struct *info);
+struct stivale2_struct_tag_memmap *get_memmap_tag();
 
 #endif // KINFO_H
