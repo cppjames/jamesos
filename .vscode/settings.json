@@ -17,7 +17,7 @@
         "initializer_list": "c",
         "random": "c"
     },
-    "C_Cpp.errorSquiggles": "Disabled",
+    //"C_Cpp.errorSquiggles": "Disabled",
 
     "workbench.colorCustomizations": {
     //    Mayukai Alucard
