@@ -30,12 +30,14 @@ struct stivale2_header header2 = {
 };
 
 void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
+    parse_stivale_info(info);
+    
 	init_terminal();
     init_gdt();
     init_idt();
     init_paging();
 
-    print_splash_info(info);
+    //print_splash_info(info);
 
     init_shell();
 	
