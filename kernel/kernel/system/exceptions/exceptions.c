@@ -3,6 +3,7 @@
 
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
+#include <kernel/kcontrol.h>
 
 static char *exceptions[] = {
     [0] = "Division by Zero",
@@ -28,8 +29,8 @@ static char *exceptions[] = {
 };
 
 void exception_handler(uint64_t exc) {
-    klog_info(KLOG_PANIC, "Unhandled exception");
     klog_debug("Unhandled exception %d: %s\n", exc, exceptions[exc]);
+    kpanic("Unhandled exception: %s", exceptions[exc]);
 }
 
 void exc0() {
