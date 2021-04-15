@@ -1,5 +1,3 @@
-CC         = gcc
-LD         = ld
 BUILDDIR   = build
 KERNEL_HDD = $(BUILDDIR)/disk.hdd
 KERNEL_ELF = kernel/jamesos.kernel
@@ -9,40 +7,43 @@ CLEANSCRIPT = ./clean.sh
 
 CFLAGS = -O2 -pipe -Wall -Wextra
 
-CHARDFLAGS := $(CFLAGS)               \
-	-std=gnu99                     \
-	-masm=intel                    \
-	-fno-pic                       \
-	-mno-sse                       \
-	-mno-sse2                      \
-	-mno-mmx                       \
-	-mno-80387                     \
-	-mno-red-zone                  \
-	-mcmodel=kernel                \
-	-ffreestanding                 \
-	-fno-stack-protector           \
-	-Isrc/                         \
+CHARDFLAGS := $(CFLAGS)               	\
+	-std=gnu99                     		\
+	-masm=intel                    		\
+	-fno-pic                       		\
+	-mno-sse                       		\
+	-mno-sse2                      		\
+	-mno-mmx                       		\
+	-mno-80387                     		\
+	-mno-red-zone                  		\
+	-mcmodel=kernel                		\
+	-ffreestanding                 		\
+	-fno-stack-protector           		\
+	-Isrc/                         		\
 
 LSCRIPT = src/linker.ld
-LDHARDFLAGS := $(LDFLAGS)        \
-	-static                   \
-	-nostdlib                 \
-	-no-pie                   \
-	-z max-page-size=0x1000   \
+LDHARDFLAGS := $(LDFLAGS)  		      	\
+	-static                   			\
+	-nostdlib                 			\
+	-no-pie                   			\
+	-z max-page-size=0x1000   			\
 	-T $(LSCRIPT)
 
-QFLAGS = \
-	-m 2G								\
+QFLAGS = 								\
+	-m 4G								\
 	-hda $(KERNEL_HDD)					\
 
 QDEBUGFLAGS := $(QFLAGS)				\
 	-debugcon file:./log_debug.txt		\
 	-D ./log_qemu.txt					\
 	-d cpu_reset						\
-	-monitor stdio
+	-monitor stdio						\
 
-QGDBFLAGS :=							\
-	-s -S $(KERNEL_HDD)
+QGDBFLAGS := $(QDEBUGFLAGS)				\
+	-S -gdb tcp::9000					\
+
+GDBFLAGS :=								\
+	-ix init_script.gdb					\
 
 .PHONY: disk run clean all debug gdb
 .DEFAULT_GOAL = disk
@@ -54,7 +55,7 @@ run: disk
 debug: disk
 	qemu-system-x86_64 $(QDEBUGFLAGS)
 gdb: disk
-	qemu-system-x86_64 $(QGDBFLAGS)
+	qemu-system-x86_64 $(QGDBFLAGS) & konsole -e gdb $(GDBFLAGS)
 disk: $(KERNEL_HDD)
 
 $(KERNEL_ELF):
