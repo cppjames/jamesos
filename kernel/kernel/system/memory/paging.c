@@ -187,9 +187,9 @@ static uint64_t *makeTableAt(uint64_t *entry, uint64_t bits) {
     else if (decoded == Decoded_Table)
         return (uint64_t*)entryToAddress(*entry);
 
-    uint64_t *ret = (uint64_t*)kallocFrame();
-    *entry = (toPaddr((uint64_t)ret) & ADDR_MASK) | bits;
-    return ret;
+    uint64_t ret = (uint64_t)kallocFrame();
+    *entry = toPaddr(ret) | bits;
+    return (uint64_t*)ret;
 }
 
 
