@@ -92,16 +92,41 @@
   ➤ Memory
 
 [✓] Set up page frame allocator.
-    [] Fix allocator algorithm.
+    [✓] Fix allocator algorithm.
     [✓] Use bitmap instead of bytemap.
+    [✓] Clear frames as they are being allocated.
+[✓] Write virtual memory mapper.
+    [✓] Translate the Sabaton zig paging code into C.
+    [✓] Fix the false "overlapped mapping" kernel panic that comes up on the second mapping.
+    [✓] Fix general protection fault that is raised on the second mapping.
+[✓] Fix the triple fault that happens when changing the contents of CR3.
+    [✓] Copy limine's default mappings into separate tables.
+    [✓] Unmap virtual addresses returned by PMM.
+[✓] Get rid of the sign extension function.
+[✓] Parse and store stivale memory map.
+    [✓] Write interface for getting access to the memory map tag.
+[✓] Remove unnecessary assembly functions for enabling bits in control registers.
+[✓] Refactor asm paging file.
+[] Fix PMM to calculate base address dynamically from memory map.
+    [] Calculate max memory from memory map.
+    [] Calculate bitmap size based on max memory.
+    [] Allocate bitmap in the first chunk of usable memory.
+[] Use PMM to get amount of memory to map in VMM.
+[] Further refactor file paging.c.
+    [] Maybe change filename to something more descriptive?
+    [] Maybe move mapping functions to their own VMM file?
 
   ➤ Debugging
 
 [✓] Function that logs info about kernel stuff.
 [✓] Write interface for logging to QEMU's 0xE9 port.
 [] Write interface for logging various debug messages separately from kernel-related logs.
-[] Learn how to connect GDB to QEMU.
+[✓] Learn how to connect GDB to QEMU.
 [✓] Rewrite [klog_info] so that the status parameter is first and the rest is VA_ARGS for vprintf
+[✓] Write breakpoint function that requires the Space key to be pressed to continue.
+[] Fix colors of debug messages.
+[] Write more general macro for debug message header (possibly more than one macro?).
+[] Decide on one or very few debug message header style(s) and stick to them.
 
 
 ┏━━━━━━━━━━━━━┓
@@ -124,7 +149,7 @@
 [] Replace tabs in all files with spaces.
 [] Rename all functions with camelCase.
 [] Apply header inclusion order to all files.
-[] Replace all type_t names with their PascalCase equivalent (you don't wanna mess with POSIX).
+[✓] Replace all type_t names with their PascalCase equivalent (you don't wanna mess with POSIX).
 
   ➤ Design
 
