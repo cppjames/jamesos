@@ -4,9 +4,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// TODO - Move these somewhere else
 #define KiB(N) ((uint64_t)(N) << 10)
 #define MiB(N) ((uint64_t)(N) << 20)
 #define GiB(N) ((uint64_t)(N) << 30)
+#define bit(N) (1UL << (N))
+#define firstBits(N) (bit(N) - 1UL)
 
 typedef enum Perms {
     Perm_None = 0b000,
@@ -37,7 +40,7 @@ void init_paging();
 void map(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType mt);
 Decoded decode(uint64_t entry, bool bottom_level);
 
-#define identity_map(ADDR, ...) map(ADDR, ADDR, __VA_ARGS__);
+#define identity_map(ADDR, args...) map(ADDR, ADDR, args);
 
 void *kallocFrame();
 void kfreeFrame(void *frame);

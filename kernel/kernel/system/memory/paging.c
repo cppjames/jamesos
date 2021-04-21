@@ -8,16 +8,17 @@
 #include <kernel/kdebug.h>
 #include <kernel/kcontrol.h>
 
-#define PAGE_SIZE   4096UL
 #define ENTRY_COUNT 512UL
-#define ADDR_MASK   0xFFFFFFFFFFFFF000
+#define ADDR_MASK   ~firstBits(entryMaskBits(0))
 
+static uint64_t mapLargest(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType mt);
 static uint64_t extraBits(Perms perm, MemoryType mt, uint64_t level, bool mapping);
 static size_t getIndex(uint64_t vaddr, uint64_t level);
+static size_t entryMaskBits(uint64_t level);
 static size_t vaddrBaseOffset(uint64_t vaddr, uint64_t level);
 static uint64_t toVaddr(uint64_t paddr);
 static uint64_t toPaddr(uint64_t vaddr);
-static bool canMap(uint64_t size, uint64_t vaddr, uint64_t paddr, uint64_t large_step);
+static bool canMap(uint64_t size, uint64_t vaddr, uint64_t paddr, uint64_t page_size);
 static uint64_t entryToAddress(uint64_t entry);
 static uint64_t *makeTableAt(uint64_t *entry, uint64_t bits);
 inline static void makeMappingAt(uint64_t *entry, uint64_t paddr, uint64_t bits);
@@ -48,90 +49,94 @@ void init_paging() {
 
 
 void map(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType mt) {
-    size += PAGE_SIZE - 1;
-    size &= ~(PAGE_SIZE - 1);
+    size += firstBits(entryMaskBits(0));
+    size &= ~firstBits(entryMaskBits(0));
 
-    while (size != 0) {
-        uint64_t level = levels - 1;
+    while (size) {
+        uint64_t max_map_size = mapLargest(vaddr, paddr, size, perm, mt);
+
+        vaddr += max_map_size;
+        paddr += max_map_size;
+        size -= max_map_size;
+    }
+}
+
+static uint64_t mapLargest(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType mt) {
+    uint64_t level = levels - 1;
     
-        uint64_t current_step_size = PAGE_SIZE << (9 * level);
-        uint64_t *current_table = root_table;
+    uint64_t current_step_size = bit(entryMaskBits(level));
+    uint64_t *current_table = root_table;
 
-        while (true) {
-            const size_t idx = getIndex(vaddr, level);
-            
-            Decoded decoded = decode(current_table[idx], level == 0);
+    while (true) {
+        const uint64_t map_bits = extraBits(perm, mt, level, true);
+        const uint64_t tbl_bits = extraBits(perm, mt, level, false);
+        
+        const size_t idx = getIndex(vaddr, level);
+        const Decoded decoded = decode(current_table[idx], !level);
 
-            // We can only map at this level if it's not a table
-            if (decoded == Decoded_Mapping) {
-                kpanic("Overlapping mapping at 0x%016zX.\n"
-                    "PTE is 0x%016zX.", vaddr, current_table[idx]);
-            } else if (decoded == Decoded_Table) {
-                // Iterate to the next level
-            } else if (decoded == Decoded_Empty) {
-                if (canMap(size, vaddr, paddr, current_step_size)) {
-                    const uint64_t map_bits = extraBits(perm, mt, level, true);
-                    makeMappingAt(&current_table[idx], paddr, map_bits);
-                    break;
-                }
+        if (decoded == Decoded_Mapping) {
+            kpanic("Overlapping mapping at 0x%016zX.\n"
+                "PTE is 0x%016zX.", vaddr, current_table[idx]);
+        } else if (decoded == Decoded_Table) {
+            // Iterate to the next level
+        } else if (decoded == Decoded_Empty) {
+            if (canMap(size, vaddr, paddr, current_step_size)) {
+                makeMappingAt(current_table + idx, paddr, map_bits);
+                return current_step_size;
             }
-
-            if (level == 0)
-                kpanic("Bottom level reached. Mapping not possible.\n"
-                    "PTE is 0x%016zX.", (size_t)decoded);
-
-            const uint64_t tbl_bits = extraBits(perm, mt, level, false);
-            current_table = makeTableAt(&current_table[idx], tbl_bits);
-            current_step_size >>= 9;
-            level--;
         }
 
-        vaddr += current_step_size;
-        paddr += current_step_size;
-        size -= current_step_size;
+        if (level == 0)
+            kpanic("Bottom level reached. Mapping not possible.\n"
+                "PTE is 0x%016zX.", (size_t)decoded);
+
+        current_table = makeTableAt(&current_table[idx], tbl_bits);
+        --level;
+        current_step_size = bit(entryMaskBits(level));
     }
 }
 
 
 static uint64_t extraBits(Perms perm, __attribute__((unused)) MemoryType mt, uint64_t level, bool mapping) {
-
     // Present bit enabled
-    uint64_t bits = (1UL << 0);
+    uint64_t bits = bit(0);
     
     // Supervisor bit
     if (level != 0)
-        bits |= (1UL << 2);
+        bits |= bit(2);
 
     // Level 0 table doesn't need bit 7 set
     if (mapping && level != 0)
-        bits |= (1UL << 7);
+        bits |= bit(7);
 
     // Write bit
     if (perm & Perm_W)
-        bits |= (1UL << 1);
+        bits |= bit(1);
 
     // Disable execute bit
     if (~perm & Perm_X)
-        bits |= (1UL << 63);
+        bits |= bit(63);
 
     return bits;
 }
 
 
-static size_t getIndex(uint64_t vaddr, uint64_t level) {
-    const uint8_t shift_bits = 12 + 9 * level;
-    const uint64_t mask = (1 << 9) - 1;
-    return (vaddr >> shift_bits) & mask;
+inline static size_t entryMaskBits(uint64_t level) {
+    return 12 + (level * 9);
 }
 
 
-static size_t vaddrBaseOffset(uint64_t vaddr, uint64_t level) {
-    uint64_t mask = { (PAGE_SIZE << (9 * level)) - 1 };
-    return vaddr & mask;
+inline static size_t getIndex(uint64_t vaddr, uint64_t level) {
+    return (vaddr >> entryMaskBits(level)) & firstBits(9);
 }
 
 
-static uint64_t toVaddr(uint64_t paddr) {
+inline static size_t vaddrBaseOffset(uint64_t vaddr, uint64_t level) {
+    return vaddr & firstBits(entryMaskBits(level));
+}
+
+
+inline static uint64_t toVaddr(uint64_t paddr) {
     return paddr + higher_base;
 }
 
@@ -142,30 +147,38 @@ static uint64_t toPaddr(uint64_t vaddr) {
     // Walk page tables and get physical address
     for (int level = levels - 1; level >= 0; level--) {
         uint64_t next_entry = table[getIndex(vaddr, level)];
-        if (decode(next_entry, level == 0) == Decoded_Mapping)
+        if (decode(next_entry, !level) == Decoded_Mapping)
             return entryToAddress(next_entry) + vaddrBaseOffset(vaddr, level);
 
+        // Get next table from current entry
         table = (uint64_t*)toVaddr(entryToAddress(next_entry));
     }
 
-    __builtin_unreachable();
+    kpanic("Could not get paddr of vaddr: 0x%016zX", vaddr);
 }
 
 
 Decoded decode(uint64_t entry, bool bottom_level) {
-    if ((entry & 1) == 0)
+    // Present bit is off, then entry is empty
+    if ((entry & bit(0)) == 0)
         return Decoded_Empty;
-    if (bottom_level || (entry & (1 << 7)))
+    
+    // Entry contains the paddr of a page frame
+    if (bottom_level || entry & bit(7))
         return Decoded_Mapping;
+
+    // Entry contains an address to the next table
     return Decoded_Table;
 }
 
 
-static bool canMap(uint64_t size, uint64_t vaddr, uint64_t paddr, uint64_t large_step) {
-    if (large_step > 0x40000000 || size < large_step)
+static bool canMap(uint64_t size, uint64_t vaddr, uint64_t paddr, uint64_t page_size) {
+    // We can only map if page size is below 1GiB and less than the amount of memory to map
+    if (page_size > GiB(1) || page_size > size)
         return false;
     
-    const uint64_t mask = large_step - 1;
+    // We can only map if both addresses are page-size-aligned 
+    const uint64_t mask = page_size - 1;
     if (vaddr & mask) return false;
     if (paddr & mask) return false;
     
@@ -185,8 +198,10 @@ static uint64_t *makeTableAt(uint64_t *entry, uint64_t bits) {
         // We already checked and called kpanic()
         __builtin_unreachable();
     else if (decoded == Decoded_Table)
+        // Table is already here, just return it
         return (uint64_t*)entryToAddress(*entry);
 
+    // There's no table here, allocate one and fill entry
     uint64_t ret = (uint64_t)kallocFrame();
     *entry = toPaddr(ret) | bits;
     return (uint64_t*)ret;
