@@ -1,4 +1,5 @@
-#include <kernel/system/memory.h>
+#include <kernel/system/vmm.h>
+#include <kernel/system/pmm.h>
 
 #include <stdint.h>
 #include <stddef.h>
@@ -11,49 +12,48 @@
 #define ENTRY_COUNT 512UL
 #define ADDR_MASK   ~firstBits(entryMaskBits(0))
 
-static uint64_t mapLargest(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType mt);
+static size_t mapLargest(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt);
 static uint64_t extraBits(Perms perm, MemoryType mt, uint64_t level, bool mapping);
-static size_t getIndex(uint64_t vaddr, uint64_t level);
+static size_t getIndex(Vaddr vaddr, uint64_t level);
 static size_t entryMaskBits(uint64_t level);
-static size_t vaddrBaseOffset(uint64_t vaddr, uint64_t level);
-static uint64_t toVaddr(uint64_t paddr);
-static uint64_t toPaddr(uint64_t vaddr);
-static bool canMap(uint64_t size, uint64_t vaddr, uint64_t paddr, uint64_t page_size);
-static uint64_t entryToAddress(uint64_t entry);
-static uint64_t *makeTableAt(uint64_t *entry, uint64_t bits);
-inline static void makeMappingAt(uint64_t *entry, uint64_t paddr, uint64_t bits);
+static size_t vaddrBaseOffset(Vaddr vaddr, uint64_t level);
+static bool canMap(size_t size, Vaddr vaddr, Paddr paddr, size_t page_size);
+static Paddr entryToAddress(Entry entry);
+static uint64_t *makeTableAt(Entry *entry, uint64_t bits);
+inline static void makeMappingAt(Entry *entry, Paddr paddr, uint64_t bits);
 
 extern void enableNXE();
-extern void loadTable(uint64_t table);
+extern void loadTable(Table table);
 extern uint64_t getTable();
 
-uint64_t *root_table = { 0 };
+Table root_table = { 0 };
 const uint64_t levels = { 4 };
 
-const uint64_t higher_base = { 0xFFFF800000000000 };
-const uint64_t kernel_base = { 0xFFFFFFFF80000000 };
+const Vaddr higher_base = { 0xFFFF800000000000 };
+const Vaddr kernel_base = { 0xFFFFFFFF80000000 };
 
 
 void init_paging() {
-    root_table = (uint64_t*)kallocFrame();
+    initPmm();
 
+    root_table = (Table)kallocFrame();
     identity_map(0x0, GiB(5), Perm_RWX, MemoryType_Memory);
     map(higher_base, 0x0, GiB(5), Perm_RWX, MemoryType_Memory);
     map(kernel_base, 0x0, GiB(2), Perm_RWX, MemoryType_Memory);
     
     enableNXE();
-    loadTable(toPaddr((uint64_t)root_table));
+    loadTable((Table)toPaddr((Vaddr)root_table));
 
     klog_info(KLOG_SUCCESS, "Paging enabled.");
 }
 
 
-void map(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType mt) {
+void map(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt) {
     size += firstBits(entryMaskBits(0));
     size &= ~firstBits(entryMaskBits(0));
 
     while (size) {
-        uint64_t max_map_size = mapLargest(vaddr, paddr, size, perm, mt);
+        size_t max_map_size = mapLargest(vaddr, paddr, size, perm, mt);
 
         vaddr += max_map_size;
         paddr += max_map_size;
@@ -61,11 +61,11 @@ void map(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType m
     }
 }
 
-static uint64_t mapLargest(uint64_t vaddr, uint64_t paddr, uint64_t size, Perms perm, MemoryType mt) {
+static size_t mapLargest(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt) {
     uint64_t level = levels - 1;
     
-    uint64_t current_step_size = bit(entryMaskBits(level));
-    uint64_t *current_table = root_table;
+    size_t current_step_size = bit(entryMaskBits(level));
+    Table current_table = root_table;
 
     while (true) {
         const uint64_t map_bits = extraBits(perm, mt, level, true);
@@ -126,39 +126,39 @@ inline static size_t entryMaskBits(uint64_t level) {
 }
 
 
-inline static size_t getIndex(uint64_t vaddr, uint64_t level) {
+inline static size_t getIndex(Vaddr vaddr, uint64_t level) {
     return (vaddr >> entryMaskBits(level)) & firstBits(9);
 }
 
 
-inline static size_t vaddrBaseOffset(uint64_t vaddr, uint64_t level) {
+inline static size_t vaddrBaseOffset(Vaddr vaddr, uint64_t level) {
     return vaddr & firstBits(entryMaskBits(level));
 }
 
 
-inline static uint64_t toVaddr(uint64_t paddr) {
+inline Vaddr toVaddr(Paddr paddr) {
     return paddr + higher_base;
 }
 
 
-static uint64_t toPaddr(uint64_t vaddr) {
-    uint64_t *table = (uint64_t*)toVaddr(getTable());
+Paddr toPaddr(Vaddr vaddr) {
+    Table table = (Table)toVaddr(getTable());
 
     // Walk page tables and get physical address
     for (int level = levels - 1; level >= 0; level--) {
-        uint64_t next_entry = table[getIndex(vaddr, level)];
+        Entry next_entry = table[getIndex(vaddr, level)];
         if (decode(next_entry, !level) == Decoded_Mapping)
             return entryToAddress(next_entry) + vaddrBaseOffset(vaddr, level);
 
         // Get next table from current entry
-        table = (uint64_t*)toVaddr(entryToAddress(next_entry));
+        table = (Table)toVaddr(entryToAddress(next_entry));
     }
 
     kpanic("Could not get paddr of vaddr: 0x%016zX", vaddr);
 }
 
 
-Decoded decode(uint64_t entry, bool bottom_level) {
+Decoded decode(Entry entry, bool bottom_level) {
     // Present bit is off, then entry is empty
     if ((entry & bit(0)) == 0)
         return Decoded_Empty;
@@ -172,7 +172,7 @@ Decoded decode(uint64_t entry, bool bottom_level) {
 }
 
 
-static bool canMap(uint64_t size, uint64_t vaddr, uint64_t paddr, uint64_t page_size) {
+static bool canMap(size_t size, Vaddr vaddr, Paddr paddr, size_t page_size) {
     // We can only map if page size is below 1GiB and less than the amount of memory to map
     if (page_size > GiB(1) || page_size > size)
         return false;
@@ -186,12 +186,12 @@ static bool canMap(uint64_t size, uint64_t vaddr, uint64_t paddr, uint64_t page_
 }
 
 
-static uint64_t entryToAddress(uint64_t entry) {
+static Paddr entryToAddress(Entry entry) {
     return entry & ADDR_MASK;
 }
 
 
-static uint64_t *makeTableAt(uint64_t *entry, uint64_t bits) {
+static Table makeTableAt(Entry *entry, uint64_t bits) {
     Decoded decoded = decode(*entry, false);
 
     if (decoded == Decoded_Mapping)
@@ -199,15 +199,15 @@ static uint64_t *makeTableAt(uint64_t *entry, uint64_t bits) {
         __builtin_unreachable();
     else if (decoded == Decoded_Table)
         // Table is already here, just return it
-        return (uint64_t*)entryToAddress(*entry);
+        return (Table)entryToAddress(*entry);
 
     // There's no table here, allocate one and fill entry
-    uint64_t ret = (uint64_t)kallocFrame();
-    *entry = toPaddr(ret) | bits;
-    return (uint64_t*)ret;
+    Table ret = (Table)kallocFrame();
+    *entry = toPaddr((Vaddr)ret) | bits;
+    return ret;
 }
 
 
-inline static void makeMappingAt(uint64_t *entry, uint64_t paddr, uint64_t bits) {
+inline static void makeMappingAt(Entry *entry, Paddr paddr, uint64_t bits) {
     *entry = (paddr & ADDR_MASK) | bits;
 }
