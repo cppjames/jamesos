@@ -1,8 +1,20 @@
 #include <devices/keyboard.h>
-#include "keyboard_internal.h"
 
-#include <stdio.h>
-#include <kernel/kdebug.h>
+#include <stddef.h>
+
+#define QUEUE_SIZE 4096
+
+typedef struct EventQueue {
+	KeyEvent buffer[QUEUE_SIZE];
+	size_t current;
+	size_t end;
+} EventQueue;
+
+static void updateStateMachine(Key key);
+static void updateModifiers(Key key);
+static void updateKeySwitches(Key key);
+static void sendStateMachine();
+static size_t nextEventQueuePos(size_t pos);
 
 static KeyEvent keyboard_state = (KeyEvent) {
     .key = { 0 },
@@ -15,57 +27,17 @@ static EventQueue event_queue = (EventQueue) {
 	.end = 0
 };
 
+
 void sendKey(Key key) {
-    _updateStateMachine(key);
-    _sendStateMachine();
+    updateStateMachine(key);
+    sendStateMachine();
 }
 
-void _updateStateMachine(Key key) {
-    _updateModifiers(key);
-    _updateKeySwitches(key);
-    keyboard_state.key = key;
-}
-
-void _updateModifiers(Key key) {
-    KeyFlag flag = 0x0;
-
-    if      (isShift(key)) flag = KeyFlag_Shift;
-    else if (isCtrl(key))  flag = KeyFlag_Control;
-    else if (isAlt(key))   flag = KeyFlag_Alt;
-
-    if (!flag)
-        return;
-
-    if (key.press)
-        keyboard_state.flags |= flag;
-    else
-        keyboard_state.flags &= ~flag;
-}
-
-void _updateKeySwitches(Key key) {
-    if (!key.press) return;
-
-    KeyFlag flag = 0x0;
-
-    if (isCapsLock(key)) flag = KeyFlag_CapsLock;
-
-    if (!flag)
-        return;
-
-    if (keyboard_state.flags & flag)
-        keyboard_state.flags &= ~flag;
-    else
-        keyboard_state.flags |= flag;
-}
-
-void _sendStateMachine() {
-    event_queue.buffer[event_queue.end] = keyboard_state;
-	event_queue.end = nextEventQueuePos(event_queue.end);
-}
 
 bool isKeyEvent() {
     return event_queue.current != event_queue.end;
 }
+
 
 KeyEvent getKeyEvent() {
     if (isKeyEvent()) {
@@ -81,9 +53,6 @@ KeyEvent getKeyEvent() {
     };
 }
 
-unsigned char keyEventToAscii(KeyEvent event) {
-    return keyEventUpper(event) ? keyToAsciiUpper(event.key) : keyToAscii(event.key);
-}
 
 bool keyEventUpper(KeyEvent event) {
     bool capslock = event.flags & KeyFlag_CapsLock;
@@ -91,6 +60,64 @@ bool keyEventUpper(KeyEvent event) {
     bool upper = capslock && isLetter(event.key);
     return shift ? !upper : upper;
 }
+
+
+unsigned char keyEventToAscii(KeyEvent event) {
+    return keyEventUpper(event) ? keyToAsciiUpper(event.key) : keyToAscii(event.key);
+}
+
+
+void updateStateMachine(Key key) {
+    updateModifiers(key);
+    updateKeySwitches(key);
+    keyboard_state.key = key;
+}
+
+
+void updateModifiers(Key key) {
+    KeyFlag flag = 0x0;
+
+    if      (isShift(key)) flag = KeyFlag_Shift;
+    else if (isCtrl(key))  flag = KeyFlag_Control;
+    else if (isAlt(key))   flag = KeyFlag_Alt;
+
+    if (!flag)
+        return;
+
+    if (key.press)
+        keyboard_state.flags |= flag;
+    else
+        keyboard_state.flags &= ~flag;
+}
+
+
+void updateKeySwitches(Key key) {
+    if (!key.press) return;
+
+    KeyFlag flag = 0x0;
+
+    if (isCapsLock(key)) flag = KeyFlag_CapsLock;
+
+    if (!flag)
+        return;
+
+    if (keyboard_state.flags & flag)
+        keyboard_state.flags &= ~flag;
+    else
+        keyboard_state.flags |= flag;
+}
+
+
+void sendStateMachine() {
+    event_queue.buffer[event_queue.end] = keyboard_state;
+	event_queue.end = nextEventQueuePos(event_queue.end);
+}
+
+
+static inline size_t nextEventQueuePos(size_t pos) {
+	return (pos + 1) % QUEUE_SIZE;
+}
+
 
 const char KEY_ASCII_MAP[256] = {
     [KeyCode_1] = '1',
