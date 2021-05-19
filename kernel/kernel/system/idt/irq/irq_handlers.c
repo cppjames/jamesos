@@ -5,20 +5,13 @@
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
 
-#define eoi_pic_master()            \
-    outb(0x20, 0x20);
-
-#define eoi_pic_slave() do {        \
-    outb(0xA0, 0x20);               \
-    outb(0x20, 0x20); } while (0)
-
 // PIT
-void irq0_handler(void) {
-    eoi_pic_master();
+void irq0_handler() {
+    // Nothin hia
 }
 
 // Keyboard
-void irq1_handler(void) {
+void irq1_handler() {
     unsigned char scan_code = inb(0x60);
 
     Key key = codeToKey(scan_code);
@@ -34,17 +27,17 @@ void irq1_handler(void) {
     }
 }
 
-void irq2_handler(void)  { }
-void irq3_handler(void)  { }
-void irq4_handler(void)  { }
-void irq5_handler(void)  { }
-void irq6_handler(void)  { }
-void irq7_handler(void)  { }
-void irq8_handler(void)  { }
-void irq9_handler(void)  { }
-void irq10_handler(void) { }
-void irq11_handler(void) { }
-void irq12_handler(void) { }
-void irq13_handler(void) { }
-void irq14_handler(void) { }
-void irq15_handler(void) { }
+void irq2_handler()  { }
+void irq3_handler()  { }
+void irq4_handler()  { }
+void irq5_handler()  { }
+void irq6_handler()  { }
+void irq7_handler()  { }
+void irq8_handler()  { }
+void irq9_handler()  { }
+void irq10_handler() { }
+void irq11_handler() { }
+void irq12_handler() { }
+void irq13_handler() { }
+void irq14_handler() { }
+void irq15_handler() { }
