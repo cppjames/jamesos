@@ -33,90 +33,90 @@ void exception_handler(uint64_t exc) {
     kpanic("Unhandled exception: %s", exceptions[exc]);
 }
 
-void exc0() {
+void exc0_handler() {
     exception_handler(0);
 };
 
-void exc1() {
+void exc1_handler() {
     exception_handler(1);
 };
 
-void exc2() {
+void exc2_handler() {
     exception_handler(2);
 };
 
-void exc3() {
+void exc3_handler() {
     exception_handler(3);
 };
 
-void exc4() {
+void exc4_handler() {
     exception_handler(4);
 };
 
-void exc5() {
+void exc5_handler() {
     exception_handler(5);
 };
 
-void exc6() {
+void exc6_handler() {
     exception_handler(6);
 };
 
-void exc7() {
+void exc7_handler() {
     exception_handler(7);
 };
 
-void exc8() {
+void exc8_handler(__attribute__((unused)) uint64_t error_code) {
     exception_handler(8);
 };
 
-void exc9() {
+void exc9_handler() {
     exception_handler(9);
 };
 
-void exc10() {
+void exc10_handler(__attribute__((unused)) uint64_t error_code) {
     exception_handler(10);
 };
 
-void exc11() {
+void exc11_handler(__attribute__((unused)) uint64_t error_code) {
     exception_handler(11);
 };
 
-void exc12() {
+void exc12_handler(__attribute__((unused)) uint64_t error_code) {
     exception_handler(12);
 };
 
-void exc13() {
+void exc13_handler(__attribute__((unused)) uint64_t error_code) {
     exception_handler(13);
 };
 
-void exc14() {
+void exc14_handler(__attribute__((unused)) uint64_t error_code) {
     exception_handler(14);
 };
 
-void exc15() {
+void exc15_handler() {
     exception_handler(15);
 };
 
-void exc16() {
+void exc16_handler() {
     exception_handler(16);
 };
 
-void exc17() {
+void exc17_handler(__attribute__((unused)) uint64_t error_code) {
     exception_handler(17);
 };
 
-void exc18() {
+void exc18_handler() {
     exception_handler(18);
 };
 
-void exc19() {
+void exc19_handler() {
     exception_handler(19);
 };
 
-void exc20() {
+void exc20_handler() {
     exception_handler(20);
 };
 
-void exc30() {
+void exc30_handler(__attribute__((unused)) uint64_t error_code) {
     exception_handler(30);
 };
