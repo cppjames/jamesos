@@ -7,7 +7,7 @@
 
 #include <kernel/system/idt.h>
 #include <kernel/system/gdt.h>
-#include <kernel/system/memory.h>
+#include <kernel/system/vmm.h>
 #include <kernel/shell.h>
 
 static uint8_t stack[4096] = { 0 };
@@ -29,15 +29,15 @@ struct stivale2_header header2 = {
     .tags        = (uint64_t)&smp_request
 };
 
-void kernel_main(__attribute__((unused)) struct stivale2_struct *info) {
+void kernel_main(struct stivale2_struct *info) {
     parse_stivale_info(info);
     
-	init_terminal();
+    terminalInit();
     init_gdt();
-    init_idt();
+    idtInit();
     init_paging();
 
-    //print_splash_info(info);
+    print_splash_info(info);
 
     init_shell();
 	
