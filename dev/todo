@@ -53,7 +53,7 @@
 [] Move [print_splash_info] into a higher level init function and call that from kernel_start.
 [] Write an interface for getting the stivale info (after it's been parsed).
 [] Give limine a frambuffer header tag.
-[] Read the stivale2 documentation for the memory map structure tag.
+[✓] Read the stivale2 documentation for the memory map structure tag.
 [] Decide on structure of the kernel directory.
 [✓] Load IDT table and write some IRQ handlers.
 [✓] Handle keyboard interrupts properly.
@@ -71,7 +71,7 @@
     [] Send command (program name, arguments)
     [] Key combinations for cursor movement
     [] Fix newlines with terminal scrolling.
-[] Fix exception handlers that use the stack.
+[✓] Fix exception handlers that use the stack.
 
   ➤ Devices
 
@@ -108,14 +108,14 @@
     [✓] Write interface for getting access to the memory map tag.
 [✓] Remove unnecessary assembly functions for enabling bits in control registers.
 [✓] Refactor asm paging file.
-[] Fix PMM to calculate base address dynamically from memory map.
-    [] Calculate max memory from memory map.
-    [] Calculate bitmap size based on max memory.
-    [] Allocate bitmap in the first chunk of usable memory.
-[] Use PMM to get amount of memory to map in VMM.
-[] Further refactor file paging.c.
-    [] Maybe change filename to something more descriptive?
-    [] Maybe move mapping functions to their own VMM file?
+[✓] Fix PMM to calculate base address dynamically from memory map.
+    [✓] Calculate max memory from memory map.
+    [✓] Calculate bitmap size based on max memory.
+    [✓] Allocate bitmap in the first chunk of usable memory.
+[✓] Use PMM to get amount of memory to map in VMM.
+[✓] Further refactor file paging.c.
+    [✓] Maybe change filename to something more descriptive?
+    [✓] Maybe move mapping functions to their own VMM file?
 
   ➤ Debugging
 
