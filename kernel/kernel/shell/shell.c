@@ -13,12 +13,12 @@ size_t command_cursor = { 0 };
 size_t out_cursor_x = { 0 };
 size_t out_cursor_y = { 0 };
 
-#define COLOR_NORMAL    vga_entry_color(VgaColor_LightGray, VgaColor_Black)
-#define COLOR_HIGHLIGHT vga_entry_color(VgaColor_Black, VgaColor_LightGray)
+#define COLOR_NORMAL    vgaEntryColor(VgaColor_LightGray, VgaColor_Black)
+#define COLOR_HIGHLIGHT vgaEntryColor(VgaColor_Black, VgaColor_LightGray)
 
 void init_shell() {
-    out_cursor_x = terminal_cursor_x();
-    out_cursor_y = terminal_cursor_y();
+    out_cursor_x = terminalCursorX();
+    out_cursor_y = terminalCursorY();
 
     renderCommand();
 
@@ -105,8 +105,8 @@ inline bool cursorAtEnd() {
 }
 
 void clearCommand() {
-    terminal_mvcursor(out_cursor_x, out_cursor_y);
-    terminal_setcolor(vga_entry_color(VgaColor_LightGray, VgaColor_Black));
+    terminalMoveCursor(out_cursor_x, out_cursor_y);
+    terminalSetColor(vgaEntryColor(VgaColor_LightGray, VgaColor_Black));
 
     for (size_t current = 0; command[current]; current++) {
         putchar(' ');
@@ -117,13 +117,13 @@ void clearCommand() {
 }
 
 void renderCommand() {
-    terminal_mvcursor(out_cursor_x, out_cursor_y);
+    terminalMoveCursor(out_cursor_x, out_cursor_y);
     
     for (size_t current = 0; command[current]; current++) {
         if (current == command_cursor)
-            terminal_setcolor(COLOR_HIGHLIGHT);
+            terminalSetColor(COLOR_HIGHLIGHT);
         else
-            terminal_setcolor(COLOR_NORMAL);
+            terminalSetColor(COLOR_NORMAL);
         
         if (command[current] == '\n')
             putchar(' ');
@@ -131,11 +131,11 @@ void renderCommand() {
     }
 
     if (command[command_cursor] == '\0')
-        terminal_setcolor(COLOR_HIGHLIGHT);
+        terminalSetColor(COLOR_HIGHLIGHT);
     else
-        terminal_setcolor(COLOR_NORMAL);
+        terminalSetColor(COLOR_NORMAL);
         
     putchar(' ');
 
-    terminal_setcolor(COLOR_NORMAL);
+    terminalSetColor(COLOR_NORMAL);
 }
