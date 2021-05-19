@@ -1,6 +1,7 @@
-#include <stdbool.h>
-
 #include <devices/keyboard.h>
+
+#include <stdbool.h>
+#include <stddef.h>
 
 #define MULTIBYTE_BEGIN   0xE0
 #define PAUSE_BEGIN       0xE1
@@ -21,19 +22,21 @@ static bool is_pause = false;
 static const KeyCode CODE_TO_KEY_MAP[256];
 static const KeyCode MBCODE_TO_KEY_MAP[256];
 
-#define sequenceLength() (scancode_sequence_length)
+#define sequenceLength() scancode_sequence_length
 #define setSequenceLength(len) (scancode_sequence_length = (len))
 #define isMultibyte() (sequenceLength() > 0)
 #define isMultibyteStart() (sequenceLength() == 1)
 
 static void addMultibyteCode();
-inline static Key constructKeyFromCode(unsigned char code);
-inline static Key constructKeyFromCodeMB(unsigned char code);
-inline static Key constructEmptyKey();
-inline static Key constructPrintScreenPressKey();
-inline static Key constructPrintScreenReleaseKey();
-inline static Key constructPauseKey();
-inline static void resetSequence();
+static void resetSequence();
+
+static Key constructKeyFromCode(unsigned char code);
+static Key constructKeyFromCodeMB(unsigned char code);
+static Key constructEmptyKey();
+static Key constructPrintScreenPressKey();
+static Key constructPrintScreenReleaseKey();
+static Key constructPauseKey();
+
 
 Key codeToKey(unsigned char code) {
     if (isMultibyte()) {
@@ -86,40 +89,49 @@ next_code:
     return constructEmptyKey();
 }
 
-inline static void addMultibyteCode() {
+
+static inline void addMultibyteCode() {
     setSequenceLength(sequenceLength() + 1);
 }
 
-inline static void resetSequence() {
+
+static inline void resetSequence() {
     is_pause = false;
     is_print_screen_press = false;
     is_print_screen_release = false;
     setSequenceLength(0);
 }
 
+
 static inline Key constructKeyFromCode(unsigned char code) {
     return (Key) { .code = CODE_TO_KEY_MAP[code % 128], .press = (code <= 128) };
 }
+
 
 static inline Key constructKeyFromCodeMB(unsigned char code) {
     return (Key) { .code = MBCODE_TO_KEY_MAP[code % 128], .press = (code <= 128) };
 }
 
+
 static inline Key constructEmptyKey() {
     return (Key) { .code = KeyCode_None };
 }
 
-inline static Key constructPrintScreenPressKey() {
+
+static inline Key constructPrintScreenPressKey() {
     return (Key) { .code = KeyCode_PrintScreen, .press = true };
 }
 
-inline static Key constructPrintScreenReleaseKey() {
+
+static inline Key constructPrintScreenReleaseKey() {
     return (Key) { .code = KeyCode_PrintScreen, .press = false };
 }
 
-inline static Key constructPauseKey() {
+
+static inline Key constructPauseKey() {
     return (Key) { .code = KeyCode_Pause, .press = true };
 }
+
 
 static const KeyCode CODE_TO_KEY_MAP[] = {
     [0x00] = KeyCode_None,
