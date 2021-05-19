@@ -32,9 +32,9 @@ void parse_stivale_info(struct stivale2_struct *info) {
 }
 
 void print_splash_info(struct stivale2_struct *info) {
-    const enum VgaColor color1 = VgaColor_White;
-    const enum VgaColor color2 = VgaColor_LightGreen;
-    const enum VgaColor color3 = VgaColor_LightCyan;
+    const VgaColor color1 = VgaColor_White;
+    const VgaColor color2 = VgaColor_LightGreen;
+    const VgaColor color3 = VgaColor_LightCyan;
 
     setcolor(color1);
     puts("\nWelcome to...\n");
@@ -46,7 +46,7 @@ void print_splash_info(struct stivale2_struct *info) {
     "&| |_| | (_| | | | | | |  __/\\__ \\& |_| |___) |\n"
     "& \\___/ \\__,_|_| |_| |_|\\___||___/&\\___/|____/ \n\n";
 
-    enum VgaColor color = color1;
+    VgaColor color = color1;
     for (char* crt = splash; *crt; crt++) {
         if (*crt == '&')
             if (color == color2)
@@ -88,28 +88,36 @@ void klog_info(enum klog_status status, char *format, ...) {
     va_list va;
     va_start(va, format);
 
-    setcolor(VgaColor_White);
-    printf("[");
+    static const VgaColor bracket_colors[] = {
+        [KLOG_SUCCESS] = VgaColor_Green,
+        [KLOG_INFO] = VgaColor_Cyan,
+        [KLOG_WARN] = VgaColor_Brown,
+        [KLOG_FAIL] = VgaColor_Red,
+        [KLOG_PANIC] = VgaColor_Magenta
+    };
 
-    if (status == KLOG_SUCCESS) {
-        setcolor(VgaColor_LightGreen);
-        printf("DONE");
-    } else if (status == KLOG_INFO) {
-        setcolor(VgaColor_LightCyan);
-        printf("INFO");
-    } else if (status == KLOG_WARN) {
-        setcolor(VgaColor_LightBrown);
-        printf("WARNING");
-    } else if (status == KLOG_FAIL) {
-        setcolor(VgaColor_LightRed);
-        printf("FAIL");
-    } else if (status == KLOG_PANIC) {
-        setcolor(VgaColor_LightMagenta);
-        printf("PANIC");
-    }
+    static const VgaColor status_colors[] = {
+        [KLOG_SUCCESS] = VgaColor_LightGreen,
+        [KLOG_INFO] = VgaColor_LightCyan,
+        [KLOG_WARN] = VgaColor_LightBrown,
+        [KLOG_FAIL] = VgaColor_LightRed,
+        [KLOG_PANIC] = VgaColor_LightMagenta
+    };
 
-    setcolor(VgaColor_White);
-    printf("] ");
+    static const char *status_strings[] = {
+        [KLOG_SUCCESS] = "DONE",
+        [KLOG_INFO] = "INFO",
+        [KLOG_WARN] = "WARN",
+        [KLOG_FAIL] = "FAIL",
+        [KLOG_PANIC] = "PANIC"
+    };
+
+    setcolor(bracket_colors[status]);
+    printf("( ");
+    setcolor(status_colors[status]);
+    printf(status_strings[status]);
+    setcolor(bracket_colors[status]);
+    printf(" ) ");
 
     setcolor(VgaColor_LightGray);
 
