@@ -40,6 +40,7 @@
 
 > Whitespace
 
+    - Spaces are used for indentation.
     - There is always one space before and after mathematical and assignment operators.
     - There is no space after the opening and before the closing round and square brackets.
     - There is no space between the function name and the call operator.
@@ -57,7 +58,7 @@
     |   void foo() {
     |       if (condition) {
     |           do {
-    |               Key key = (key) { .code = codes[distance] };
+    |               Key key = (Key) { .code = codes[distance] };
     |           } while (true);
     |       }
     |   }
