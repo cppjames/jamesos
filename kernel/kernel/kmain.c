@@ -3,17 +3,17 @@
 #include <stdio.h>
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
-#include <utils/debug.h>
 
+#include <devices/keyboard.h>
 #include <kernel/system/idt.h>
 #include <kernel/system/gdt.h>
 #include <kernel/system/vmm.h>
 #include <kernel/shell.h>
 
 static uint8_t stack[4096] = { 0 };
-void kernel_main(struct stivale2_struct *info);
+void kmain(StivaleStruct *info);
 
-struct stivale2_header_tag_smp smp_request = {
+StivaleHTagSmp smp_request = {
     .tag = {
         .identifier = STIVALE2_HEADER_TAG_SMP_ID,
         .next       = 0
@@ -22,25 +22,26 @@ struct stivale2_header_tag_smp smp_request = {
 };
 
 __attribute__((section(".stivale2hdr"), used))
-struct stivale2_header header2 = {
-    .entry_point = (uint64_t)kernel_main,
+StivaleHeader header2 = {
+    .entry_point = (uint64_t)kmain,
     .stack       = (uintptr_t)stack + sizeof(stack),
     .flags       = 0,
     .tags        = (uint64_t)&smp_request
 };
 
-void kernel_main(struct stivale2_struct *info) {
-    parse_stivale_info(info);
+void kmain(StivaleStruct *info) {
+    kinfoParseStivaleStruct(info);
     
-    terminalInit();
-    init_gdt();
-    idtInit();
-    init_paging();
+    initTerminal();
+    initGdt();
+    initIdt();
+    initKeyboard();
+    initPaging();
 
-    print_splash_info(info);
+    kinfoPrintSplash(info);
 
-    init_shell();
+    initShell();
 	
-    for (;;)
+    while (true)
         asm volatile ("hlt");
 }
