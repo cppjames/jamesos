@@ -1,5 +1,4 @@
-; Helper functions for enabling paging (mostly for changing
-; the contents of various control registers.
+; Helper functions for enabling paging (mostly for changing the contents of various control registers).
 
 section .data:
 
@@ -14,10 +13,10 @@ global enableNXE
 
 ; *********************************************************
 ; Function to load the physical address of the PML4 into CR3.
-
+;
 ; Parameters:
 ;     (qword) rdi - PML4 paddr
-
+;
 ; C prototype:
 ;     void loadTable(uint64_t);
 
@@ -28,10 +27,10 @@ loadTable:
 
 ; *********************************************************
 ; Function to get the physical address of the PML4 from CR3.
-
+;
 ; Returns:
 ;     (qword) rax - PML4 paddr
-
+;
 ; C prototype:
 ;     uint64_t getTable();
 
@@ -43,7 +42,7 @@ getTable:
 ; *********************************************************
 ; Function to enable IA32_EFER.NXE (no-execute) bit. Only
 ; needs to be called once.
-
+;
 ; C prototype:
 ;     void enableNXE();
 
