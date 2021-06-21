@@ -1,8 +1,13 @@
 #include <devices/keyboard.h>
 
 #include <stddef.h>
+#include <sys/io.h>
+#include <stdio.h>
 
 #define QUEUE_SIZE 4096
+#define SCANCODE_SET 0xF0
+#define SCANCODE_1 0x01
+#define SCANCODE_SET_FAIL 0xFE
 
 typedef struct EventQueue {
 	KeyEvent buffer[QUEUE_SIZE];
@@ -10,6 +15,7 @@ typedef struct EventQueue {
 	size_t end;
 } EventQueue;
 
+static void setKeyboardScanCode();
 static void updateStateMachine(Key key);
 static void updateModifiers(Key key);
 static void updateKeySwitches(Key key);
@@ -18,7 +24,7 @@ static size_t nextEventQueuePos(size_t pos);
 
 static KeyEvent keyboard_state = (KeyEvent) {
     .key = { 0 },
-    .flags = 0x00
+    .flags = 0x0
 };
 
 static EventQueue event_queue = (EventQueue) {
@@ -26,6 +32,11 @@ static EventQueue event_queue = (EventQueue) {
 	.current = 0,
 	.end = 0
 };
+
+
+void initKeyboard() {
+    setKeyboardScanCode();
+}
 
 
 void sendKey(Key key) {
@@ -64,6 +75,18 @@ bool keyEventUpper(KeyEvent event) {
 
 unsigned char keyEventToAscii(KeyEvent event) {
     return keyEventUpper(event) ? keyToAsciiUpper(event.key) : keyToAscii(event.key);
+}
+
+
+void setKeyboardScanCode() {
+    while (true) {
+        outb(SCANCODE_SET, KEYBOARD_PORT);
+        outb(SCANCODE_1, KEYBOARD_PORT);
+
+        unsigned char response = inb(KEYBOARD_PORT);
+        if (response != SCANCODE_SET_FAIL)
+            break;
+    }
 }
 
 
