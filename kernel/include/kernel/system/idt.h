@@ -1,6 +1,6 @@
 #ifndef IDT_H
 #define IDT_H
 
-void idtInit();
+void initIdt();
 
 #endif // IDT_H
