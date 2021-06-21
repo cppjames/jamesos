@@ -9,14 +9,12 @@
 #include <stdbool.h>
 
 unsigned char command[COMMAND_SIZE] = { 0 };
-size_t command_cursor = { 0 };
-size_t out_cursor_x = { 0 };
-size_t out_cursor_y = { 0 };
+size_t command_cursor = 0;
+size_t out_cursor_x = 0;
+size_t out_cursor_y = 0;
 
-#define COLOR_NORMAL    vgaEntryColor(VgaColor_LightGray, VgaColor_Black)
-#define COLOR_HIGHLIGHT vgaEntryColor(VgaColor_Black, VgaColor_LightGray)
 
-void init_shell() {
+void initShell() {
     out_cursor_x = terminalCursorX();
     out_cursor_y = terminalCursorY();
 
@@ -29,9 +27,8 @@ void init_shell() {
             if (!ev.key.press)
                 continue;
 
-            if (isAscii(ev.key)) {
+            if (isAscii(ev.key))
                 addCursorCharacter(keyEventToAscii(ev));
-            }
             
             switch (ev.key.code) {
             case KeyCode_Backspace:
@@ -57,15 +54,19 @@ void init_shell() {
     }
 }
 
+
 void addCursorCharacter(unsigned char ch) {
     clearCommand();
+
     size_t len = strlen((char*)(command + command_cursor)) + 1;
     for (size_t current = 0; current < len; current++) {
         command[command_cursor + len - current] = command[command_cursor + len - current - 1];
     }
+
     command[command_cursor++] = ch;
     renderCommand();
 }
+
 
 void deleteCharacter(size_t index) {
     clearCommand();
@@ -78,11 +79,13 @@ void deleteCharacter(size_t index) {
     renderCommand();
 }
 
+
 void moveCursorLeft(size_t amount) {
     clearCommand();
     command_cursor = (amount > command_cursor) ? 0 : (command_cursor - amount);
     renderCommand();
 }
+
 
 void moveCursorRight(size_t amount) {
     clearCommand();
@@ -96,13 +99,16 @@ void moveCursorRight(size_t amount) {
     renderCommand();
 }
 
+
 inline bool cursorAtStart() {
     return command_cursor == 0;
 }
 
+
 inline bool cursorAtEnd() {
     return command[command_cursor] == 0;
 }
+
 
 void clearCommand() {
     terminalMoveCursor(out_cursor_x, out_cursor_y);
@@ -113,8 +119,10 @@ void clearCommand() {
         if (command[current] == '\n')
             putchar('\n');
     }
+    
     putchar(' ');
 }
+
 
 void renderCommand() {
     terminalMoveCursor(out_cursor_x, out_cursor_y);
@@ -136,6 +144,5 @@ void renderCommand() {
         terminalSetColor(COLOR_NORMAL);
         
     putchar(' ');
-
     terminalSetColor(COLOR_NORMAL);
 }
