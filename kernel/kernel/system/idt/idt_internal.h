@@ -25,21 +25,21 @@ typedef struct {
     uint64_t base;
 } __attribute__((packed)) IdtPtr;
 
-void irq0();
-void irq1();
-void irq2();
-void irq3();
-void irq4();
-void irq5();
-void irq6();
-void irq7();
-void irq8();
-void irq9();
-void irq10();
-void irq11();
-void irq12();
-void irq13();
-void irq14();
-void irq15();
+void irqIsr0();
+void irqIsr1();
+void irqIsr2();
+void irqIsr3();
+void irqIsr4();
+void irqIsr5();
+void irqIsr6();
+void irqIsr7();
+void irqIsr8();
+void irqIsr9();
+void irqIsr10();
+void irqIsr11();
+void irqIsr12();
+void irqIsr13();
+void irqIsr14();
+void irqIsr15();
 
 #endif // IDT_INTERNAL_H
