@@ -45,9 +45,11 @@ extern const uint64_t kernel_base;
 
 #define PAGE_SIZE KiB(4)
 
+
 inline uint64_t alignUp(uint64_t addr, size_t size) {
     return (addr + (size - 1)) & ~(size - 1);
 }
+
 
 inline uint64_t alignDown(uint64_t addr, size_t size) {
     return (addr / size) * size;
