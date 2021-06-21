@@ -5,7 +5,13 @@
 #include <kernel/kdebug.h>
 #include <kernel/kcontrol.h>
 
-static char *exceptions[] = {
+#define def_excHandler(exc) \
+    void excHandler##exc() { exceptionHandler(exc); }
+
+#define def_excHandlerErrorCode(exc) \
+    void excHandler##exc(uint64_t error_code) { (void)error_code; exceptionHandler(exc); }
+
+static const char *exceptions[] = {
     [0] = "Division by Zero",
     [1] = "Debug",
     [2] = "Non Maskable Interrupt",
@@ -28,95 +34,32 @@ static char *exceptions[] = {
     [30] = "Security Exception"
 };
 
-void exception_handler(uint64_t exc) {
-    klog_debug("Unhandled exception %d: %s\n", exc, exceptions[exc]);
+
+void exceptionHandler(uint64_t exc) {
+    kdebugLog("Unhandled exception %d: %s\n", exc, exceptions[exc]);
     kpanic("Unhandled exception: %s", exceptions[exc]);
 }
 
-void exc0_handler() {
-    exception_handler(0);
-};
 
-void exc1_handler() {
-    exception_handler(1);
-};
-
-void exc2_handler() {
-    exception_handler(2);
-};
-
-void exc3_handler() {
-    exception_handler(3);
-};
-
-void exc4_handler() {
-    exception_handler(4);
-};
-
-void exc5_handler() {
-    exception_handler(5);
-};
-
-void exc6_handler() {
-    exception_handler(6);
-};
-
-void exc7_handler() {
-    exception_handler(7);
-};
-
-void exc8_handler(__attribute__((unused)) uint64_t error_code) {
-    exception_handler(8);
-};
-
-void exc9_handler() {
-    exception_handler(9);
-};
-
-void exc10_handler(__attribute__((unused)) uint64_t error_code) {
-    exception_handler(10);
-};
-
-void exc11_handler(__attribute__((unused)) uint64_t error_code) {
-    exception_handler(11);
-};
-
-void exc12_handler(__attribute__((unused)) uint64_t error_code) {
-    exception_handler(12);
-};
-
-void exc13_handler(__attribute__((unused)) uint64_t error_code) {
-    exception_handler(13);
-};
-
-void exc14_handler(__attribute__((unused)) uint64_t error_code) {
-    exception_handler(14);
-};
-
-void exc15_handler() {
-    exception_handler(15);
-};
-
-void exc16_handler() {
-    exception_handler(16);
-};
-
-void exc17_handler(__attribute__((unused)) uint64_t error_code) {
-    exception_handler(17);
-};
-
-void exc18_handler() {
-    exception_handler(18);
-};
-
-void exc19_handler() {
-    exception_handler(19);
-};
-
-void exc20_handler() {
-    exception_handler(20);
-};
-
-void exc30_handler(__attribute__((unused)) uint64_t error_code) {
-    exception_handler(30);
-};
+def_excHandler(0);
+def_excHandler(1);
+def_excHandler(2);
+def_excHandler(3);
+def_excHandler(4);
+def_excHandler(5);
+def_excHandler(6);
+def_excHandler(7);
+def_excHandlerErrorCode(8);
+def_excHandler(9);
+def_excHandlerErrorCode(10);
+def_excHandlerErrorCode(11);
+def_excHandlerErrorCode(12);
+def_excHandlerErrorCode(13);
+def_excHandlerErrorCode(14);
+def_excHandler(15);
+def_excHandler(16);
+def_excHandlerErrorCode(17);
+def_excHandler(18);
+def_excHandler(19);
+def_excHandler(20);
+def_excHandlerErrorCode(30);
