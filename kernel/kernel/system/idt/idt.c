@@ -9,12 +9,12 @@
 static void remapPic();
 static void setExceptionEntries();
 static void setIrqEntries();
-static inline void setIdtEntry(uint8_t index, uint64_t irq_address);
+static inline void setIdtEntry(uint8_t index, void *irq_ptr);
 static inline IdtPtr getIdtPtr();
 
 IdtEntry idt[256];
 
-void idtInit() {
+void initIdt() {
     remapPic();
 
     setExceptionEntries();
@@ -23,7 +23,7 @@ void idtInit() {
     asm volatile ("lidt %0" :: "m" (idt_ptr) : "memory");
     asm volatile ("sti");
 
-    klog_info(KLOG_SUCCESS, "IDT loaded.");
+    kinfoLog(Log_Success, "IDT loaded.");
 }
 
 static void remapPic() {
@@ -42,54 +42,12 @@ static void remapPic() {
     outb(0x21, 0x00);
     outb(0xA1, 0x00);
 
-    klog_info(KLOG_SUCCESS, "PIC remapped.");
+    kinfoLog(Log_Success, "PIC remapped.");
 }
 
-static void setExceptionEntries() {
-    setIdtEntry(0,  (uint64_t)exc0);
-    setIdtEntry(1,  (uint64_t)exc1);
-    setIdtEntry(2,  (uint64_t)exc2);
-    setIdtEntry(3,  (uint64_t)exc3);
-    setIdtEntry(4,  (uint64_t)exc4);
-    setIdtEntry(5,  (uint64_t)exc5);
-    setIdtEntry(6,  (uint64_t)exc6);
-    setIdtEntry(7,  (uint64_t)exc7);
-    setIdtEntry(8,  (uint64_t)exc8);
-    setIdtEntry(9,  (uint64_t)exc9);
-    setIdtEntry(10, (uint64_t)exc10);
-    setIdtEntry(11, (uint64_t)exc11);
-    setIdtEntry(12, (uint64_t)exc12);
-    setIdtEntry(13, (uint64_t)exc13);
-    setIdtEntry(14, (uint64_t)exc14);
-    setIdtEntry(15, (uint64_t)exc15);
-    setIdtEntry(16, (uint64_t)exc16);
-    setIdtEntry(17, (uint64_t)exc17);
-    setIdtEntry(18, (uint64_t)exc18);
-    setIdtEntry(19, (uint64_t)exc19);
-    setIdtEntry(20, (uint64_t)exc20);
-    setIdtEntry(30, (uint64_t)exc30);
-}
+static inline void setIdtEntry(uint8_t index, void *irq_ptr) {
+    uintptr_t irq_address = (uintptr_t)irq_ptr;
 
-static void setIrqEntries() {
-    setIdtEntry(32, (uint64_t)irq0);
-    setIdtEntry(33, (uint64_t)irq1);
-    setIdtEntry(34, (uint64_t)irq2);
-    setIdtEntry(35, (uint64_t)irq3);
-    setIdtEntry(36, (uint64_t)irq4);
-    setIdtEntry(37, (uint64_t)irq5);
-    setIdtEntry(38, (uint64_t)irq6);
-    setIdtEntry(39, (uint64_t)irq7);
-    setIdtEntry(40, (uint64_t)irq8);
-    setIdtEntry(41, (uint64_t)irq9);
-    setIdtEntry(42, (uint64_t)irq10);
-    setIdtEntry(43, (uint64_t)irq11);
-    setIdtEntry(44, (uint64_t)irq12);
-    setIdtEntry(45, (uint64_t)irq13);
-    setIdtEntry(46, (uint64_t)irq14);
-    setIdtEntry(47, (uint64_t)irq15);
-}
-
-static inline void setIdtEntry(uint8_t index, uint64_t irq_address) {
     idt[index] = (IdtEntry) {
         .offset_lowerbits =  (irq_address & OFFSET_MASK_LOWER),
         .offset_middlebits = (irq_address & OFFSET_MASK_MIDDLE) >> 16,
@@ -108,4 +66,48 @@ static inline IdtPtr getIdtPtr() {
         .limit = sizeof(idt) - 1,
         .base = (uint64_t)idt
     };
+}
+
+static void setExceptionEntries() {
+    setIdtEntry(0,  excIsr0);
+    setIdtEntry(1,  excIsr1);
+    setIdtEntry(2,  excIsr2);
+    setIdtEntry(3,  excIsr3);
+    setIdtEntry(4,  excIsr4);
+    setIdtEntry(5,  excIsr5);
+    setIdtEntry(6,  excIsr6);
+    setIdtEntry(7,  excIsr7);
+    setIdtEntry(8,  excIsr8);
+    setIdtEntry(9,  excIsr9);
+    setIdtEntry(10, excIsr10);
+    setIdtEntry(11, excIsr11);
+    setIdtEntry(12, excIsr12);
+    setIdtEntry(13, excIsr13);
+    setIdtEntry(14, excIsr14);
+    setIdtEntry(15, excIsr15);
+    setIdtEntry(16, excIsr16);
+    setIdtEntry(17, excIsr17);
+    setIdtEntry(18, excIsr18);
+    setIdtEntry(19, excIsr19);
+    setIdtEntry(20, excIsr20);
+    setIdtEntry(30, excIsr30);
+}
+
+static void setIrqEntries() {
+    setIdtEntry(32, irqIsr0);
+    setIdtEntry(33, irqIsr1);
+    setIdtEntry(34, irqIsr2);
+    setIdtEntry(35, irqIsr3);
+    setIdtEntry(36, irqIsr4);
+    setIdtEntry(37, irqIsr5);
+    setIdtEntry(38, irqIsr6);
+    setIdtEntry(39, irqIsr7);
+    setIdtEntry(40, irqIsr8);
+    setIdtEntry(41, irqIsr9);
+    setIdtEntry(42, irqIsr10);
+    setIdtEntry(43, irqIsr11);
+    setIdtEntry(44, irqIsr12);
+    setIdtEntry(45, irqIsr13);
+    setIdtEntry(46, irqIsr14);
+    setIdtEntry(47, irqIsr15);
 }
