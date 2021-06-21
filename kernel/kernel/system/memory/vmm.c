@@ -26,14 +26,14 @@ extern void enableNXE();
 extern void loadTable(Table table);
 extern uint64_t getTable();
 
-Table root_table = { 0 };
-const uint64_t levels = { 4 };
+Table root_table = 0;
+const uint64_t levels = 4;
 
-const Vaddr higher_base = { 0xFFFF800000000000 };
-const Vaddr kernel_base = { 0xFFFFFFFF80000000 };
+const Vaddr higher_base = 0xFFFF800000000000;
+const Vaddr kernel_base = 0xFFFFFFFF80000000;
 
 
-void init_paging() {
+void initPaging() {
     initPmm();
 
     root_table = (Table)kallocFrame();
@@ -44,7 +44,7 @@ void init_paging() {
     enableNXE();
     loadTable((Table)toPaddr((Vaddr)root_table));
 
-    klog_info(KLOG_SUCCESS, "Paging enabled.");
+    kinfoLog(Log_Success, "Paging enabled.");
 }
 
 
