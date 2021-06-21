@@ -4,18 +4,31 @@
 #include <kernel/stivale2.h>
 #include <stdarg.h>
 
-enum klog_status {
-    KLOG_SUCCESS,
-    KLOG_INFO,
-    KLOG_WARN,
-    KLOG_FAIL,
-    KLOG_PANIC
-};
+typedef enum LogStatus {
+    Log_Success,
+    Log_Info,
+    Log_Warn,
+    Log_Fail,
+    Log_Panic
+} LogStatus;
 
-void print_splash_info(struct stivale2_struct *);
-void klog_info(enum klog_status, char*, ...);
+typedef struct stivale2_struct StivaleStruct;
+typedef struct stivale2_header StivaleHeader;
+typedef struct stivale2_tag StivaleTag;
 
-void parse_stivale_info(struct stivale2_struct *info);
-struct stivale2_struct_tag_memmap *get_memmap_tag();
+typedef struct stivale2_header_tag_smp StivaleHTagSmp;
+
+typedef struct stivale2_struct_tag_memmap StivaleTagMemmap;
+typedef struct stivale2_struct_tag_cmdline StivaleTagCmdline;
+typedef struct stivale2_struct_tag_firmware StivaleTagFirmware;
+
+typedef struct stivale2_mmap_entry StivaleMMapEntry;
+
+void kinfoPrintSplash(StivaleStruct *info);
+void kinfoLog(LogStatus status, char *format, ...);
+
+void kinfoParseStivaleStruct(StivaleStruct *info);
+StivaleTagMemmap *kinfoGetMemmapTag();
+StivaleTagCmdline *kinfoGetCmdlineTag();
 
 #endif // KINFO_H
