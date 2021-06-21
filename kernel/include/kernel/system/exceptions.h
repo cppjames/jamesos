@@ -3,29 +3,29 @@
 
 #include <stdint.h>
 
-void exception_handler(uint64_t exc);
+void exceptionHandler(uint64_t exc);
 
-void exc0();
-void exc1();
-void exc2();
-void exc3();
-void exc4();
-void exc5();
-void exc6();
-void exc7();
-void exc8();
-void exc9();
-void exc10();
-void exc11();
-void exc12();
-void exc13();
-void exc14();
-void exc15();
-void exc16();
-void exc17();
-void exc18();
-void exc19();
-void exc20();
-void exc30();
+void excIsr0();
+void excIsr1();
+void excIsr2();
+void excIsr3();
+void excIsr4();
+void excIsr5();
+void excIsr6();
+void excIsr7();
+void excIsr8();
+void excIsr9();
+void excIsr10();
+void excIsr11();
+void excIsr12();
+void excIsr13();
+void excIsr14();
+void excIsr15();
+void excIsr16();
+void excIsr17();
+void excIsr18();
+void excIsr19();
+void excIsr20();
+void excIsr30();
 
 #endif // EXCEPTIONS_H
