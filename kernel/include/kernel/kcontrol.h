@@ -1,9 +1,11 @@
 #ifndef KCONTROL_H
 #define KCONTROL_H
 
-#include <sys/cdefs.h>
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
+
+#include <stdbool.h>
+#include <sys/cdefs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,11 +20,11 @@ void khalt();
 // TODO: Provide generic macros for debug-printing.
 #define kpanic(...)                                                     \
     do {                                                                \
-        klog_debug("[ %s: Function %s(): Line %s: Kernel panic\n] M! ", \
+        kdebugLog("[ %s: Function %s(): Line %s: Kernel panic\n] M! ",  \
                    __FILE__, __func__, STRGY(__LINE__));                \
-        klog_debug(__VA_ARGS__);                                        \
-        klog_info(KLOG_PANIC, __VA_ARGS__);                             \
-        for (;;) khalt();                                               \
+        kdebugLog(__VA_ARGS__);                                         \
+        kinfoLog(Log_Panic, __VA_ARGS__);                               \
+        while (true) khalt();                                           \
     } while (0)
 
 #ifdef __cplusplus
