@@ -3,7 +3,13 @@
 
 #include <kernel/kinfo.h>
 
-extern int reload_segments();
+typedef struct {
+    uint16_t limit;
+    uint64_t base;
+} __attribute__((packed)) GdtPtr;
+
+extern void reloadSegments();
+extern void loadGdt(GdtPtr *gdt_ptr);
 
 uint64_t gdt[3] = {
     [0] = 0x000F00000000FFFF, // Null
@@ -11,19 +17,15 @@ uint64_t gdt[3] = {
     [2] = 0x0000920000000000  // 64 bit data
 };
 
-typedef struct {
-    uint16_t limit;
-    uint64_t base;
-} __attribute__((packed)) GdtPtr;
-
 GdtPtr gdt_ptr = (GdtPtr) {
     .limit = sizeof(gdt) - 1,
     .base = (uint64_t)&gdt[0]
 };
 
-void init_gdt() {
-    asm volatile ("lgdt %0" :: "m" (gdt_ptr) : "memory");
-    reload_segments();
 
-    klog_info(KLOG_SUCCESS, "GDT loaded.");
+void initGdt() {
+    loadGdt(&gdt_ptr);
+    reloadSegments();
+
+    kinfoLog(Log_Success, "GDT loaded.");
 }
