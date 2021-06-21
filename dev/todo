@@ -50,7 +50,7 @@
 [] Write a stivale tag parser and keep the info somewhere.
 [✓] Move action-info-printing functions away from the function that handles the actions indirectly.
 [] Give limine more tags.
-[] Move [print_splash_info] into a higher level init function and call that from kernel_start.
+[] Move [kinfoPrintSplash] into a higher level init function and call that from kernel_start.
 [] Write an interface for getting the stivale info (after it's been parsed).
 [] Give limine a frambuffer header tag.
 [✓] Read the stivale2 documentation for the memory map structure tag.
@@ -86,7 +86,7 @@
     [✓] Add support for multibyte keycodes.
         [✓] Add support for two-byte keycodes.
         [✓] Add support for the other keycodes like Pause.
-    [] Send keyboard signal to use scancode set 1.
+    [✓] Send keyboard signal to use scancode set 1.
     [] Add support for numpad keys.
 [] Add support for ANSI sequences in the terminal.
 
@@ -123,7 +123,7 @@
 [✓] Write interface for logging to QEMU's 0xE9 port.
 [] Write interface for logging various debug messages separately from kernel-related logs.
 [✓] Learn how to connect GDB to QEMU.
-[✓] Rewrite [klog_info] so that the status parameter is first and the rest is VA_ARGS for vprintf
+[✓] Rewrite [kinfoLog] so that the status parameter is first and the rest is VA_ARGS for vprintf
 [✓] Write breakpoint function that requires the Space key to be pressed to continue.
 [] Fix colors of debug messages.
 [] Write more general macro for debug message header (possibly more than one macro?).
@@ -148,9 +148,10 @@
 [] Decide on hex case.
 [✓] Decide on whether or not parameter names show up in header files.
 [] Replace tabs in all files with spaces.
-[] Rename all functions with camelCase.
+[✓] Rename all functions with camelCase.
 [] Apply header inclusion order to all files.
 [✓] Replace all type_t names with their PascalCase equivalent (you don't wanna mess with POSIX).
+[] Apply the "paging.asm" style to all other asm files.
 
   ➤ Design
 
