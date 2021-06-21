@@ -31,7 +31,7 @@ static inline uint16_t vgaEntry(uint8_t uc, uint8_t color) {
 	return (uint16_t)uc | ((uint16_t)color << 8);
 }
 
-void terminalInit();
+void initTerminal();
 
 void terminalClear();
 void terminalFill(size_t x, size_t y, size_t w, size_t h, uint8_t c);
