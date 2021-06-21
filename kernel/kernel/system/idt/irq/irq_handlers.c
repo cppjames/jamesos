@@ -5,14 +5,17 @@
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
 
+
 // PIT
-void irq0_handler() {
-    // Nothin hia
+void irqHandler0() {
+    // Context switch ?????????????
+    // Scheduler shit ?????????????
 }
 
+
 // Keyboard
-void irq1_handler() {
-    unsigned char scan_code = inb(0x60);
+void irqHandler1() {
+    unsigned char scan_code = inb(KEYBOARD_PORT);
 
     Key key = codeToKey(scan_code);
     if (key.code == KeyCode_None)
@@ -27,17 +30,18 @@ void irq1_handler() {
     }
 }
 
-void irq2_handler()  { }
-void irq3_handler()  { }
-void irq4_handler()  { }
-void irq5_handler()  { }
-void irq6_handler()  { }
-void irq7_handler()  { }
-void irq8_handler()  { }
-void irq9_handler()  { }
-void irq10_handler() { }
-void irq11_handler() { }
-void irq12_handler() { }
-void irq13_handler() { }
-void irq14_handler() { }
-void irq15_handler() { }
+
+void irqHandler2()  { }
+void irqHandler3()  { }
+void irqHandler4()  { }
+void irqHandler5()  { }
+void irqHandler6()  { }
+void irqHandler7()  { }
+void irqHandler8()  { }
+void irqHandler9()  { }
+void irqHandler10() { }
+void irqHandler11() { }
+void irqHandler12() { }
+void irqHandler13() { }
+void irqHandler14() { }
+void irqHandler15() { }
