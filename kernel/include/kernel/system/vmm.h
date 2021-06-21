@@ -3,7 +3,7 @@
 
 #include "memory.h"
 
-void init_paging();
+void initPaging();
 void map(uint64_t vaddr, uint64_t paddr, size_t size, Perms perm, MemoryType mt);
 Decoded decode(uint64_t entry, bool bottom_level);
 
