@@ -34,11 +34,13 @@
     pop rax
 %endmacro
 
+; End of interrupt signal for master PIC IRQs.
 %macro eoi_pic_master 0
     mov al, 0x20
     out 0x20, al
 %endmacro
 
+; End of interrupt signal for slave PIC IRQs.
 %macro eoi_pic_slave 0
     mov al, 0x20
     out 0xA0, al
@@ -46,15 +48,14 @@
 %endmacro
 
 %macro handle_irq 2
-    extern irq%1_handler
-    global irq%1
-    irq%1:
-        pushaq
-        cld
-        call irq%1_handler
-        %2
-        popaq
-        iretq
+    extern irqHandler%1     ; Use external irqHandler C function
+    global irqIsr%1         ; Declare irqIsr function as global
+    irqIsr%1:
+        pushaq              ; Save registers
+        call irqHandler%1   ; Call irqHandler function
+        %2                  ; Send end-of-interrupt signal
+        popaq               ; Restore registers
+        iretq               ; Return from interrupt
 %endmacro
 
 %macro handle_irq_master 1
