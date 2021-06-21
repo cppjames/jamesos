@@ -34,30 +34,36 @@
     pop rax
 %endmacro
 
+; Instructions for popping error informations off the stack
 %macro pop_err 0
     mov rdi, qword [rsp]
     add rsp, 8
 %endmacro
 
+; Instructions for not popping anything
 %macro nopop_err 0
     ; Nothing here
 %endmacro
 
+; Generic macro to handle an exception
 %macro handle_exc 2
-    extern exc%1_handler
-    global exc%1
-    exc%1:
-        pushaq
-        %2
-        call exc%1_handler
-        popaq
-        iretq
+    extern excHandler%1
+
+    global excIsr%1
+    excIsr%1:
+        pushaq              ; Save all registers
+        %2                  ; To pop or not to pop
+        call excHandler%1   ; Call C handler function
+        popaq               ; Restore all registers
+        iretq               ; Return from ISR
 %endmacro
 
+; Macro to handle an exception that doesn't push error information to the stack
 %macro handle_exc_noerr 1
     handle_exc %1, nopop_err
 %endmacro
 
+; Macro to handle an exception that pushes error information to the stack
 %macro handle_exc_err 1
     handle_exc %1, pop_err
 %endmacro
