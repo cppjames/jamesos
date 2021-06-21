@@ -3,43 +3,40 @@
 #include <kernel/kdebug.h>
 #include <devices/terminal.h>
 #include <stdio.h>
+#include <string.h>
 
-struct stivale2_struct_tag_memmap *memmap_tag = { 0 };
+StivaleTagMemmap  *memmap_tag  = 0;
+StivaleTagCmdline *cmdline_tag = 0;
 
-inline struct stivale2_struct_tag_memmap *get_memmap_tag() {
+inline StivaleTagMemmap *kinfoGetMemmapTag() {
     return memmap_tag;
 }
 
-void parse_stivale_info(struct stivale2_struct *info) {
-    struct stivale2_tag *node = (struct stivale2_tag*)info->tags;
-    while (node) {
-        if (node->identifier == STIVALE2_STRUCT_TAG_MEMMAP_ID) {
-            memmap_tag = (struct stivale2_struct_tag_memmap*)node;
-            
-            // Print out all of the memory map entries to debug log
-            uint64_t entry_count = memmap_tag->entries;
-            for (uint64_t entry_idx = 0; entry_idx < entry_count; entry_idx++) {
-                klog_debug("0x%016zX -> (0x%zX bytes) : Type 0x%zX\n",
-                    memmap_tag->memmap[entry_idx].base,
-                    memmap_tag->memmap[entry_idx].length,
-                    (uint64_t)memmap_tag->memmap[entry_idx].type
-                );
-            }
-        }
+inline StivaleTagCmdline *kinfoGetCmdlineTag() {
+    return cmdline_tag;
+}
 
-        node = (struct stivale2_tag*)(node->next);
+void kinfoParseStivaleStruct(StivaleStruct *info) {
+    StivaleTag *node = (StivaleTag*)info->tags;
+    while (node) {
+        if (node->identifier == STIVALE2_STRUCT_TAG_MEMMAP_ID)
+            memmap_tag = (typeof(memmap_tag))node;
+        else if (node->identifier == STIVALE2_STRUCT_TAG_CMDLINE_ID)
+            cmdline_tag = (typeof(cmdline_tag))node;
+
+        node = (StivaleTag*)(node->next);
     }
 }
 
-void print_splash_info(struct stivale2_struct *info) {
+void kinfoPrintSplash(StivaleStruct *info) {
     const VgaColor color1 = VgaColor_White;
     const VgaColor color2 = VgaColor_LightGreen;
     const VgaColor color3 = VgaColor_LightCyan;
 
     setcolor(color1);
-    puts("\nWelcome to...\n");
+    puts("\nWelcome to...");
 
-    char* splash =
+    static const char *splash =
     "&     _                            &___  ____  \n"
     "&    | | __ _ _ __ ___   ___  ___ &/ _ \\/ ___| \n"
     "& _  | |/ _` | '_ ` _ \\ / _ \\/ __|& | | \\___ \\ \n"
@@ -47,69 +44,80 @@ void print_splash_info(struct stivale2_struct *info) {
     "& \\___/ \\__,_|_| |_| |_|\\___||___/&\\___/|____/ \n\n";
 
     VgaColor color = color1;
-    for (char* crt = splash; *crt; crt++) {
-        if (*crt == '&')
-            if (color == color2)
-                color = color1;
-            else
-                color = color2;
-        else
-            putchar(*crt);
-        setcolor(color);
+
+    // Print title in alternating colors
+    for (const char *crt = splash; *crt; crt++) {
+        if (*crt == '&') {
+            color = (color == color2) ? color1 : color2;
+            setcolor(color);
+            continue;
+        }
+        
+        putchar(*crt);
     }
 
-    struct stivale2_tag* node = (struct stivale2_tag*)info->tags;
+    StivaleTag* node = (StivaleTag*)info->tags;
+
+    // Find firmware tag and print its data
     while (node) {
         if (node->identifier == STIVALE2_STRUCT_TAG_FIRMWARE_ID) {
             setcolor(VgaColor_LightGray);
             printf("%s", " Firmware: ");
             setcolor(color3);
-            printf("%s\n", (((struct stivale2_struct_tag_firmware*)node)->flags & 1) ? "BIOS" : "UEFI");
+            printf("%s\n", (((StivaleTagFirmware*)node)->flags & 1) ? "BIOS" : "UEFI");
+            break;
         }
 
-        node = (struct stivale2_tag*)(node->next);
+        node = (StivaleTag*)(node->next);
     }
 
     setcolor(VgaColor_LightGray);
-
     printf(" Bootloader: ");
     setcolor(color3);
     printf("%s ", info->bootloader_brand);
     setcolor(color1);
-    printf("%s\n\n", info->bootloader_version);
+    printf("%s\n", info->bootloader_version);
+
+    // Print command line arguments, if there are any
+    if (strlen((char*)kinfoGetCmdlineTag()->cmdline)) {
+        setcolor(VgaColor_LightGray);
+        printf(" Command line arguments: ");
+        setcolor(color1);
+        printf("%s\n", kinfoGetCmdlineTag()->cmdline);
+    }
 
     setcolor(VgaColor_DarkGray);
-    printf(" - - - - - - - - - - - - - - - - - - - - - - - -\n\n");
+    printf("\n - - - - - - - - - - - - - - - - - - - - - - - -\n\n");
 
     setcolor(VgaColor_LightGray);
 }
 
-void klog_info(enum klog_status status, char *format, ...) {
+void kinfoLog(LogStatus status, char *format, ...) {
     va_list va;
     va_start(va, format);
 
     static const VgaColor bracket_colors[] = {
-        [KLOG_SUCCESS] = VgaColor_Green,
-        [KLOG_INFO] = VgaColor_Cyan,
-        [KLOG_WARN] = VgaColor_Brown,
-        [KLOG_FAIL] = VgaColor_Red,
-        [KLOG_PANIC] = VgaColor_Magenta
+        [Log_Success] = VgaColor_Green,
+        [Log_Info] = VgaColor_Cyan,
+        [Log_Warn] = VgaColor_Brown,
+        [Log_Fail] = VgaColor_Red,
+        [Log_Panic] = VgaColor_Magenta
     };
 
     static const VgaColor status_colors[] = {
-        [KLOG_SUCCESS] = VgaColor_LightGreen,
-        [KLOG_INFO] = VgaColor_LightCyan,
-        [KLOG_WARN] = VgaColor_LightBrown,
-        [KLOG_FAIL] = VgaColor_LightRed,
-        [KLOG_PANIC] = VgaColor_LightMagenta
+        [Log_Success] = VgaColor_LightGreen,
+        [Log_Info] = VgaColor_LightCyan,
+        [Log_Warn] = VgaColor_LightBrown,
+        [Log_Fail] = VgaColor_LightRed,
+        [Log_Panic] = VgaColor_LightMagenta
     };
 
     static const char *status_strings[] = {
-        [KLOG_SUCCESS] = "DONE",
-        [KLOG_INFO] = "INFO",
-        [KLOG_WARN] = "WARN",
-        [KLOG_FAIL] = "FAIL",
-        [KLOG_PANIC] = "PANIC"
+        [Log_Success] = "DONE",
+        [Log_Info] = "INFO",
+        [Log_Warn] = "WARN",
+        [Log_Fail] = "FAIL",
+        [Log_Panic] = "PANIC"
     };
 
     setcolor(bracket_colors[status]);
