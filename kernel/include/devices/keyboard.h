@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+#define KEYBOARD_PORT 0x60
+
+
 typedef enum KeyCode {
     KeyCode_None,
     KeyCode_Escape,
@@ -138,6 +141,8 @@ typedef struct KeyEvent {
 
 extern const char KEY_ASCII_MAP[];
 extern const char KEY_ASCII_MAP_UPPER[];
+
+void initKeyboard();
 
 Key codeToKey(unsigned char code);
 void sendKey(Key key);
