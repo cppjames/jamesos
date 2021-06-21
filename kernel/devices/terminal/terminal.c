@@ -1,9 +1,9 @@
+#include <devices/terminal.h>
+#include <kernel/kinfo.h>
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-
-#include <devices/terminal.h>
-#include <kernel/kinfo.h>
 
 static inline void terminalPutcharAt(size_t x, size_t y, uint8_t c);
 static inline void terminalPutEntryAt(size_t x, size_t y, uint16_t entry);
@@ -15,26 +15,29 @@ static inline size_t getIndex(size_t x, size_t y);
 
 static const size_t VGA_WIDTH  = 80;
 static const size_t VGA_HEIGHT = 25;
-static uint16_t* const VGA_MEMORY = (uint16_t*) 0xB8000;
+static uint16_t* const VGA_MEMORY = (uint16_t*)0xB8000;
 
 static size_t terminal_row    = 0;
 static size_t terminal_column = 0;
 static uint8_t terminal_color;
 static uint16_t *terminal_buffer;
 
-void terminalInit() {
+
+void initTerminal() {
 	terminal_row = 0;
 	terminal_column = 0;
 	terminal_color = vgaEntryColor(VgaColor_LightGray, VgaColor_Black);
 	terminal_buffer = VGA_MEMORY;
     terminalClear();
 
-    klog_info(KLOG_SUCCESS, "Terminal initialized.");
+    kinfoLog(Log_Success, "Terminal initialized.");
 }
+
 
 void terminalClear() {
     terminalFill(0, 0, VGA_WIDTH, VGA_HEIGHT, ' ');
 }
+
 
 void terminalFill(size_t x, size_t y, size_t w, size_t h, uint8_t c) {
 	for (size_t row = y; row < h; row++)
@@ -42,15 +45,18 @@ void terminalFill(size_t x, size_t y, size_t w, size_t h, uint8_t c) {
 			terminalPutcharAt(col, row, c);
 }
 
+
 void terminalWrite(const char *data, size_t size) {
 	for (size_t i = 0; i < size; i++)
 		terminalPutchar(data[i]);
 }
 
+
 void terminalWriteString(const char *data) {
     for (const char *str = data; *str; str++)
         terminalPutchar(*str);
 }
+
 
 void terminalPutchar(uint8_t c) {
     if (!c) return;
@@ -64,10 +70,12 @@ void terminalPutchar(uint8_t c) {
 	terminalAdvance();
 }
 
+
 void terminalAdvance() {
     if (++terminal_column == VGA_WIDTH)
         terminalNewline();
 }
+
 
 void terminalNewline() {
     terminal_column = 0;
@@ -77,6 +85,7 @@ void terminalNewline() {
     else
         terminalScroll();
 }
+
 
 static void terminalScroll() {
     for (size_t row = 0; row < VGA_HEIGHT-1; row++)
@@ -88,32 +97,42 @@ static void terminalScroll() {
         terminalPutEntryAt(col, VGA_HEIGHT-1, entry);
 }
 
+
 static inline void terminalPutcharAt(size_t x, size_t y, uint8_t c) {
 	terminalPutEntryAt(x, y, vgaEntry(c, terminal_color));
 }
+
+
 static inline void terminalPutEntryAt(size_t x, size_t y, uint16_t entry) {
 	terminal_buffer[getIndex(x, y)] = entry;
 }
+
+
 static inline uint16_t terminalEntryAt(size_t x, size_t y) {
     return terminal_buffer[getIndex(x, y)];
 }
+
 
 static inline size_t getIndex(size_t x, size_t y) {
     return y * VGA_WIDTH + x;
 }
 
+
 void terminalSetColor(uint8_t color) {
 	terminal_color = color;
 }
+
 
 void terminalMoveCursor(size_t x, size_t y) {
     terminal_column = x;
     terminal_row = y;
 }
 
+
 size_t terminalCursorX() {
     return terminal_column;
 }
+
 
 size_t terminalCursorY() {
     return terminal_row;
