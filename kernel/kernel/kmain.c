@@ -1,8 +1,8 @@
 #include <kernel/stivale2.h>
 
-#include <stdio.h>
-#include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
+#include <kernel/kinfo.h>
+#include <stdio.h>
 
 #include <devices/keyboard.h>
 #include <kernel/system/idt.h>
@@ -28,6 +28,7 @@ StivaleHeader header2 = {
     .flags       = 0,
     .tags        = (uint64_t)&smp_request
 };
+
 
 void kmain(StivaleStruct *info) {
     kinfoParseStivaleStruct(info);
