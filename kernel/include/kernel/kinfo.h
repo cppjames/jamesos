@@ -17,10 +17,14 @@ typedef struct stivale2_header StivaleHeader;
 typedef struct stivale2_tag StivaleTag;
 
 typedef struct stivale2_header_tag_smp StivaleHTagSmp;
+typedef struct stivale2_header_tag_framebuffer StivaleHTagFramebuffer;
 
 typedef struct stivale2_struct_tag_memmap StivaleTagMemmap;
 typedef struct stivale2_struct_tag_cmdline StivaleTagCmdline;
 typedef struct stivale2_struct_tag_firmware StivaleTagFirmware;
+typedef struct stivale2_struct_tag_framebuffer StivaleTagFramebuffer;
+typedef struct stivale2_struct_tag_modules StivaleTagModules;
+typedef struct stivale2_struct_tag_epoch StivaleTagEpoch;
 
 typedef struct stivale2_mmap_entry StivaleMMapEntry;
 
