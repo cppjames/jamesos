@@ -4,8 +4,8 @@
 #include "memory.h"
 
 void initPaging();
-void map(uint64_t vaddr, uint64_t paddr, size_t size, Perms perm, MemoryType mt);
-Decoded decode(uint64_t entry, bool bottom_level);
+void map(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt);
+Decoded decode(Entry entry, bool bottom_level);
 
 Vaddr toVaddr(Paddr paddr);
 Paddr toPaddr(Vaddr vaddr);
