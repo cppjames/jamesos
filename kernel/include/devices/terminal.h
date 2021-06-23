@@ -23,20 +23,23 @@ typedef enum VgaColor {
 	VgaColor_White = 		15,
 } VgaColor;
 
-static inline uint8_t vgaEntryColor(VgaColor fg, VgaColor bg) {
+typedef uint8_t  VgaColorEntry;
+typedef uint16_t VgaEntry;
+
+static inline VgaColorEntry vgaColorEntry(VgaColor fg, VgaColor bg) {
 	return fg | (bg << 4);
 }
 
-static inline uint16_t vgaEntry(uint8_t uc, uint8_t color) {
-	return (uint16_t)uc | ((uint16_t)color << 8);
+static inline VgaEntry vgaEntry(uint8_t ch, VgaColorEntry color) {
+	return (VgaEntry)ch | ((VgaEntry)color << 8);
 }
 
 void initTerminal();
 
 void terminalClear();
-void terminalFill(size_t x, size_t y, size_t w, size_t h, uint8_t c);
+void terminalFill(size_t x, size_t y, size_t w, size_t h, uint8_t ch);
 
-void terminalPutchar(uint8_t c);
+void terminalPutchar(uint8_t ch);
 void terminalWrite(const char* data, size_t size);
 void terminalWriteString(const char* data);
 
