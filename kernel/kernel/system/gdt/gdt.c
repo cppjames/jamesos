@@ -1,7 +1,8 @@
 #include <kernel/system/gdt.h>
-#include <stdint.h>
 
 #include <kernel/kinfo.h>
+
+#include <stdint.h>
 
 typedef struct {
     uint16_t limit;
