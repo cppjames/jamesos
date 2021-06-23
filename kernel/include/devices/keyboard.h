@@ -1,12 +1,11 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <ctype.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #define KEYBOARD_PORT 0x60
-
 
 typedef enum KeyCode {
     KeyCode_None,
