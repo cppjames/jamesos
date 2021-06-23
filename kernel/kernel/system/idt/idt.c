@@ -14,6 +14,7 @@ static inline IdtPtr getIdtPtr();
 
 IdtEntry idt[256];
 
+
 void initIdt() {
     remapPic();
 
@@ -26,7 +27,10 @@ void initIdt() {
     kinfoLog(Log_Success, "IDT loaded.");
 }
 
+
 static void remapPic() {
+    // TODO - Maybe have these in 2 arrays?
+
     outb(0x20, 0x11);
     outb(0xA0, 0x11);
 
@@ -45,6 +49,7 @@ static void remapPic() {
     kinfoLog(Log_Success, "PIC remapped.");
 }
 
+
 static inline void setIdtEntry(uint8_t index, void *irq_ptr) {
     uintptr_t irq_address = (uintptr_t)irq_ptr;
 
@@ -61,12 +66,16 @@ static inline void setIdtEntry(uint8_t index, void *irq_ptr) {
     };
 }
 
+
 static inline IdtPtr getIdtPtr() {
     return (IdtPtr) {
         .limit = sizeof(idt) - 1,
         .base = (uint64_t)idt
     };
 }
+
+
+// TODO - Ugh. Do something about this
 
 static void setExceptionEntries() {
     setIdtEntry(0,  excIsr0);
@@ -92,6 +101,7 @@ static void setExceptionEntries() {
     setIdtEntry(20, excIsr20);
     setIdtEntry(30, excIsr30);
 }
+
 
 static void setIrqEntries() {
     setIdtEntry(32, irqIsr0);
