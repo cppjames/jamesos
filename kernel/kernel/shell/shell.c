@@ -1,12 +1,12 @@
 #include <kernel/shell.h>
-
 #include "shell_internal.h"
+
 #include <devices/keyboard.h>
 #include <devices/terminal.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
 
 unsigned char command[COMMAND_SIZE] = { 0 };
 size_t command_cursor = 0;
@@ -46,7 +46,6 @@ void initShell() {
                 moveCursorRight(1);
                 break;
             case KeyCode_Return:
-                break;
             default:
                 break;
             }
@@ -112,7 +111,7 @@ inline bool cursorAtEnd() {
 
 void clearCommand() {
     terminalMoveCursor(out_cursor_x, out_cursor_y);
-    terminalSetColor(vgaEntryColor(VgaColor_LightGray, VgaColor_Black));
+    terminalSetColor(vgaColorEntry(VgaColor_LightGray, VgaColor_Black));
 
     for (size_t current = 0; command[current]; current++) {
         putchar(' ');
