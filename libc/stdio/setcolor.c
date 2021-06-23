@@ -4,6 +4,6 @@
 
 void setcolor(VgaColor color) {
 #if defined(__is_libk)
-	terminalSetColor(vgaEntryColor(color, VgaColor_Black));
+	terminalSetColor(vgaColorEntry(color, VgaColor_Black));
 #endif
 }
