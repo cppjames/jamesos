@@ -1,13 +1,14 @@
 #include <devices/keyboard.h>
 
 #include <stddef.h>
-#include <sys/io.h>
 #include <stdio.h>
+#include <sys/io.h>
 
 #define QUEUE_SIZE 4096
-#define SCANCODE_SET 0xF0
-#define SCANCODE_1 0x01
-#define SCANCODE_SET_FAIL 0xFE
+
+#define CHANGE_SCANCODE_SET        0xF0
+#define SCANCODE_SET_1             0x01
+#define CHANGE_SCANCODE_SET_FAIL   0xFE
 
 typedef struct EventQueue {
 	KeyEvent buffer[QUEUE_SIZE];
@@ -16,18 +17,20 @@ typedef struct EventQueue {
 } EventQueue;
 
 static void setKeyboardScanCode();
-static void updateStateMachine(Key key);
+
+static void updateState(Key key);
 static void updateModifiers(Key key);
 static void updateKeySwitches(Key key);
-static void sendStateMachine();
+static void sendState();
+
 static size_t nextEventQueuePos(size_t pos);
 
-static KeyEvent keyboard_state = (KeyEvent) {
+static KeyEvent keyboard_state = {
     .key = { 0 },
     .flags = 0x0
 };
 
-static EventQueue event_queue = (EventQueue) {
+static EventQueue event_queue = {
 	.buffer = {},
 	.current = 0,
 	.end = 0
@@ -35,13 +38,14 @@ static EventQueue event_queue = (EventQueue) {
 
 
 void initKeyboard() {
+    // TODO - Bind IRQ handler here
     setKeyboardScanCode();
 }
 
 
 void sendKey(Key key) {
-    updateStateMachine(key);
-    sendStateMachine();
+    updateState(key);
+    sendState();
 }
 
 
@@ -51,6 +55,7 @@ bool isKeyEvent() {
 
 
 KeyEvent getKeyEvent() {
+    // There is a key event in the queue
     if (isKeyEvent()) {
         size_t current = event_queue.current;
 		KeyEvent ev = event_queue.buffer[current];
@@ -59,13 +64,14 @@ KeyEvent getKeyEvent() {
 	}
 
 	return (KeyEvent) {
-        .key = (Key) { .code = KeyCode_None },
+        .key = { .code = KeyCode_None },
         .flags = 0x0
     };
 }
 
 
 bool keyEventUpper(KeyEvent event) {
+    // We do a little boolean trolling
     bool capslock = event.flags & KeyFlag_CapsLock;
     bool shift = event.flags & KeyFlag_Shift;
     bool upper = capslock && isLetter(event.key);
@@ -80,17 +86,19 @@ unsigned char keyEventToAscii(KeyEvent event) {
 
 void setKeyboardScanCode() {
     while (true) {
-        outb(SCANCODE_SET, KEYBOARD_PORT);
-        outb(SCANCODE_1, KEYBOARD_PORT);
+        outb(CHANGE_SCANCODE_SET, KEYBOARD_PORT);
+        outb(SCANCODE_SET_1, KEYBOARD_PORT);
 
         unsigned char response = inb(KEYBOARD_PORT);
-        if (response != SCANCODE_SET_FAIL)
+
+        // Response is not bad, we can stop now
+        if (response != CHANGE_SCANCODE_SET_FAIL)
             break;
     }
 }
 
 
-void updateStateMachine(Key key) {
+void updateState(Key key) {
     updateModifiers(key);
     updateKeySwitches(key);
     keyboard_state.key = key;
@@ -107,6 +115,7 @@ void updateModifiers(Key key) {
     if (!flag)
         return;
 
+    // Set modifier on press and clear on release
     if (key.press)
         keyboard_state.flags |= flag;
     else
@@ -115,23 +124,12 @@ void updateModifiers(Key key) {
 
 
 void updateKeySwitches(Key key) {
-    if (!key.press) return;
-
-    KeyFlag flag = 0x0;
-
-    if (isCapsLock(key)) flag = KeyFlag_CapsLock;
-
-    if (!flag)
-        return;
-
-    if (keyboard_state.flags & flag)
-        keyboard_state.flags &= ~flag;
-    else
-        keyboard_state.flags |= flag;
+    if (isCapsLock(key) && key.press)
+        keyboard_state.flags ^= KeyFlag_CapsLock;
 }
 
 
-void sendStateMachine() {
+void sendState() {
     event_queue.buffer[event_queue.end] = keyboard_state;
 	event_queue.end = nextEventQueuePos(event_queue.end);
 }
