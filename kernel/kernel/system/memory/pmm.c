@@ -1,17 +1,18 @@
 #include <kernel/system/pmm.h>
 #include <kernel/system/vmm.h>
 
-#include <kernel/kinfo.h>
 #include <kernel/kcontrol.h>
 #include <kernel/kdebug.h>
+#include <kernel/kinfo.h>
 
-#include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #define FREE 0
 #define USED 1
+
 #define FRAME_BUFFER_SIZE 16
 
 typedef enum MMType {
@@ -38,10 +39,12 @@ typedef struct MMap {
 static void initMemoryMap();
 static void initBitmap();
 
-uint8_t *page_bitmap = { 0 };
+uint8_t *page_bitmap = 0;
 MMap memory_map = { 0 };
-Paddr highest_address = { 0 };
-size_t max_pages = { 0 };
+
+Paddr highest_address = 0;
+size_t max_pages = 0;
+
 
 void initPmm() {
     initMemoryMap();
@@ -50,17 +53,21 @@ void initPmm() {
     kinfoLog(Log_Success, "PMM initialized.");
 }
 
+
 static inline void *getFrame(size_t index) {
     return (void*)(index * PAGE_SIZE);
 }
+
 
 static inline size_t getFrameIndex(void *frame) {
     return (size_t)frame / PAGE_SIZE;
 }
 
+
 static inline bool getFrameStatus(size_t index) {
     return page_bitmap[index / 8] & (1 << (index % 8));
 }
+
 
 static inline void setFrameStatus(size_t index, bool status) {
     size_t bitmask = 1 << (index % 8);
@@ -70,6 +77,7 @@ static inline void setFrameStatus(size_t index, bool status) {
     else
         page_bitmap[index / 8] &= ~bitmask;
 }
+
 
 static void *kallocFrameFind()
 {
@@ -83,6 +91,7 @@ static void *kallocFrameFind()
 
     return 0;
 }
+
 
 void *kallocFrame() {
     static void *frame_buffer[FRAME_BUFFER_SIZE] = { 0 };
@@ -100,9 +109,11 @@ void *kallocFrame() {
     return frame;
 }
 
+
 void kfreeFrame(void *frame) {
     setFrameStatus(getFrameIndex(frame), FREE);
 }
+
 
 static void initMemoryMap() {
     StivaleTagMemmap *const memmap_tag = kinfoGetMemmapTag();
@@ -138,6 +149,7 @@ static void initMemoryMap() {
 
     kinfoLog(Log_Info, "Initialized memory map at 0x%016zX", (uint64_t)memory_map.entries);
 }
+
 
 static void initBitmap() {
     // Find the largest usable memory address
