@@ -1,24 +1,27 @@
 #include <kernel/system/vmm.h>
 #include <kernel/system/pmm.h>
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-
-#include <kernel/kinfo.h>
-#include <kernel/kdebug.h>
 #include <kernel/kcontrol.h>
+#include <kernel/kdebug.h>
+#include <kernel/kinfo.h>
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #define ENTRY_COUNT 512UL
 #define ADDR_MASK   ~firstBits(entryMaskBits(0))
 
 static size_t mapLargest(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt);
+static bool canMap(size_t size, Vaddr vaddr, Paddr paddr, size_t page_size);
+
 static uint64_t extraBits(Perms perm, MemoryType mt, uint64_t level, bool mapping);
 static size_t getIndex(Vaddr vaddr, uint64_t level);
 static size_t entryMaskBits(uint64_t level);
+
 static size_t vaddrBaseOffset(Vaddr vaddr, uint64_t level);
-static bool canMap(size_t size, Vaddr vaddr, Paddr paddr, size_t page_size);
 static Paddr entryToAddress(Entry entry);
+
 static uint64_t *makeTableAt(Entry *entry, uint64_t bits);
 inline static void makeMappingAt(Entry *entry, Paddr paddr, uint64_t bits);
 
@@ -60,6 +63,7 @@ void map(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt) {
         size -= max_map_size;
     }
 }
+
 
 static size_t mapLargest(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt) {
     uint64_t level = levels - 1;
