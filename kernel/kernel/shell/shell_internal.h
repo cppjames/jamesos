@@ -1,11 +1,11 @@
 #ifndef SHELL_INTERNAL_H
 #define SHELL_INTERNAL_H
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
-#define COLOR_NORMAL    vgaEntryColor(VgaColor_LightGray, VgaColor_Black)
-#define COLOR_HIGHLIGHT vgaEntryColor(VgaColor_Black, VgaColor_LightGray)
+#define COLOR_NORMAL    vgaColorEntry(VgaColor_LightGray, VgaColor_Black)
+#define COLOR_HIGHLIGHT vgaColorEntry(VgaColor_Black, VgaColor_LightGray)
 
 #define COMMAND_SIZE 4096
 
