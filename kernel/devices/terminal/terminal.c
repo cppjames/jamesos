@@ -1,33 +1,35 @@
 #include <devices/terminal.h>
+
 #include <kernel/kinfo.h>
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 
-static inline void terminalPutcharAt(size_t x, size_t y, uint8_t c);
-static inline void terminalPutEntryAt(size_t x, size_t y, uint16_t entry);
-static inline uint16_t terminalEntryAt(size_t x, size_t y);
-static inline void terminalAdvance();
-static inline void terminalNewline();
-static inline void terminalScroll();
-static inline size_t getIndex(size_t x, size_t y);
+#define VGA_WIDTH   80
+#define VGA_HEIGHT  25
 
-static const size_t VGA_WIDTH  = 80;
-static const size_t VGA_HEIGHT = 25;
-static uint16_t* const VGA_MEMORY = (uint16_t*)0xB8000;
+static uint16_t* const vga_memory = (uint16_t*)0xB8000;
 
 static size_t terminal_row    = 0;
 static size_t terminal_column = 0;
 static uint8_t terminal_color;
 static uint16_t *terminal_buffer;
 
+static void terminalPutcharAt(size_t x, size_t y, uint8_t ch);
+static void terminalPutEntryAt(size_t x, size_t y, uint16_t entry);
+static uint16_t terminalEntryAt(size_t x, size_t y);
+static void terminalAdvance();
+static void terminalNewline();
+static void terminalScroll();
+static size_t getIndex(size_t x, size_t y);
+
 
 void initTerminal() {
 	terminal_row = 0;
 	terminal_column = 0;
-	terminal_color = vgaEntryColor(VgaColor_LightGray, VgaColor_Black);
-	terminal_buffer = VGA_MEMORY;
+	terminal_color = vgaColorEntry(VgaColor_LightGray, VgaColor_Black);
+	terminal_buffer = vga_memory;
     terminalClear();
 
     kinfoLog(Log_Success, "Terminal initialized.");
@@ -39,10 +41,10 @@ void terminalClear() {
 }
 
 
-void terminalFill(size_t x, size_t y, size_t w, size_t h, uint8_t c) {
+void terminalFill(size_t x, size_t y, size_t w, size_t h, uint8_t ch) {
 	for (size_t row = y; row < h; row++)
 		for (size_t col = x; col < w; col++)
-			terminalPutcharAt(col, row, c);
+			terminalPutcharAt(col, row, ch);
 }
 
 
@@ -58,15 +60,15 @@ void terminalWriteString(const char *data) {
 }
 
 
-void terminalPutchar(uint8_t c) {
-    if (!c) return;
+void terminalPutchar(uint8_t ch) {
+    if (!ch) return;
 
-	if (c == '\n') {
+	if (ch == '\n') {
         terminalNewline();
         return;
     }
     
-	terminalPutcharAt(terminal_column, terminal_row, c);
+	terminalPutcharAt(terminal_column, terminal_row, ch);
 	terminalAdvance();
 }
 
@@ -92,28 +94,28 @@ static void terminalScroll() {
         for (size_t col = 0; col < VGA_WIDTH; col++)
             terminalPutEntryAt(col, row, terminalEntryAt(col, row + 1));
     
-    uint16_t entry = vgaEntry(' ', vgaEntryColor(VgaColor_LightGray, VgaColor_Black));
+    VgaEntry entry = vgaEntry(' ', vgaColorEntry(VgaColor_LightGray, VgaColor_Black));
     for (size_t col = 0; col < VGA_WIDTH; col++)
         terminalPutEntryAt(col, VGA_HEIGHT-1, entry);
 }
 
 
-static inline void terminalPutcharAt(size_t x, size_t y, uint8_t c) {
-	terminalPutEntryAt(x, y, vgaEntry(c, terminal_color));
+static void terminalPutcharAt(size_t x, size_t y, uint8_t ch) {
+	terminalPutEntryAt(x, y, vgaEntry(ch, terminal_color));
 }
 
 
-static inline void terminalPutEntryAt(size_t x, size_t y, uint16_t entry) {
+static void terminalPutEntryAt(size_t x, size_t y, VgaEntry entry) {
 	terminal_buffer[getIndex(x, y)] = entry;
 }
 
 
-static inline uint16_t terminalEntryAt(size_t x, size_t y) {
+static VgaEntry terminalEntryAt(size_t x, size_t y) {
     return terminal_buffer[getIndex(x, y)];
 }
 
 
-static inline size_t getIndex(size_t x, size_t y) {
+static size_t getIndex(size_t x, size_t y) {
     return y * VGA_WIDTH + x;
 }
 
