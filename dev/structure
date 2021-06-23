@@ -1,13 +1,44 @@
 jamesos
-    > .vscode           : Visual Studio Code config files
     ~ build             : contains the JamesOS hdd
-    > dev               : development-related files, not part of built source
+    > dev               : development-related files, not part of source code
         > trash         : files that are no longer needed (but who knows...)
-    > kernel            : kernel and kernel-related headers
-    > devices           : implementations of device headers
-    > include           : kernel-related header files
-        > devices       : headers for interacting with devices
-        > kernel        : headers that only the kernel should use
-    > kernel            : kernel_main and implementations for kernel-related headers
-    > libc              : libc implementation and headers
+        - structure     : this file, explains the structure of the project
+        - style         : style guidelines, still WIP
+        - todo          : to do list
+    > kernel            : all kernel files
+        > devices                       : implementation files for device headers
+            > keyboard                  : implementation files for the keyboard header
+                - keyboard_scancode.c   : constructs keys from scancodes
+                - keyboard.c            : manages key events
+            > terminal                  : implementation file for the terminal header 
+                - terminal.c            : terminal implementation
+        > include                       : kernel-related header files
+            > devices                   : headers for interacting with devices (keyboard and terminal)
+                - keyboard.h
+                - terminal.h
+            > kernel                    : headers that only the kernel should use
+                > system                : system-related headers
+                    - exceptions.h      : exception handlers
+                    - gdt.h             : initializing the GDT
+                    - idt.h             : initializing the IDT
+                    - memory.h          : memory-related typedefs and macros
+                    - pmm.h             : PMM initialization and allocation functions
+                    - vmm.h             : VMM initialization and mapping & paging functions
+                - kcontrol.h            : execution control (kernel panic)
+                - kdebug.h              : debugging utility functions (logging and breakpoints)
+                - kinfo.h               : stivale information and logging to the screen
+                - shell.h               : header for initializing the shell that is not actually a shell
+                - stivale2.h
+        > kernel                : kmain and implementations for the headers that only the kernel should use
+            > shell             : implementation files for the shell
+            > system            : implementation files for the system headers
+                > exceptions
+                > gdt
+                > idt
+                > memory
+            - kcontrol.c
+            - kdebug.c
+            - kinfo.c
+            - kmain.c
+    > libc              : libc implementation and headers (this is actually libk i guess)
     > limine            : limine source code and build
