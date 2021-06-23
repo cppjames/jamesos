@@ -40,7 +40,11 @@ static Key constructPauseKey();
 
 Key codeToKey(unsigned char code) {
     if (isMultibyte()) {
+
+        // Key is the second of a multibyte sequence
         if (isMultibyteStart()) {
+
+            // Key continues a "print screen" / "pause" sequence
             if (code == PRINT_SCREEN_PRESS_BEGIN   ||
                 code == PRINT_SCREEN_RELEASE_BEGIN ||
                 code == PAUSE_SECOND_BYTE) {
@@ -58,16 +62,19 @@ Key codeToKey(unsigned char code) {
             addMultibyteCode();
             size_t seqLen = sequenceLength();
 
+            // Key is the last of a "print screen" press multibyte sequence
             if (is_print_screen_press && seqLen == PRINT_SCREEN_SEQUENCE_LENGTH) {
                 resetSequence();
                 return constructPrintScreenPressKey();
             }
 
+            // Key is the last of a "print screen" release multibyte sequence
             if (is_print_screen_release && seqLen == PRINT_SCREEN_SEQUENCE_LENGTH) {
                 resetSequence();
                 return constructPrintScreenReleaseKey();
             }
             
+            // Key is the last of a "pause" press multibyte sequence
             if (is_pause && seqLen == PAUSE_SEQUENCE_LENGTH) {
                 resetSequence();
                 return constructPauseKey();
@@ -76,6 +83,7 @@ Key codeToKey(unsigned char code) {
             return constructEmptyKey();
         }
     } else {
+        // Key is the beginning of a multibyte sequence
         if (code == MULTIBYTE_BEGIN || code == PAUSE_BEGIN) {
             is_pause = (code == PAUSE_BEGIN);
             goto next_code;
