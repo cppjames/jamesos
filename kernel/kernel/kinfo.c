@@ -1,20 +1,25 @@
-#include <kernel/stivale2.h>
 #include <kernel/kinfo.h>
-#include <kernel/kdebug.h>
+#include <kernel/stivale2.h>
+
 #include <devices/terminal.h>
+#include <kernel/kdebug.h>
+
 #include <stdio.h>
 #include <string.h>
 
 StivaleTagMemmap  *memmap_tag  = 0;
 StivaleTagCmdline *cmdline_tag = 0;
 
+
 inline StivaleTagMemmap *kinfoGetMemmapTag() {
     return memmap_tag;
 }
 
+
 inline StivaleTagCmdline *kinfoGetCmdlineTag() {
     return cmdline_tag;
 }
+
 
 void kinfoParseStivaleStruct(StivaleStruct *info) {
     StivaleTag *node = (StivaleTag*)info->tags;
@@ -27,6 +32,7 @@ void kinfoParseStivaleStruct(StivaleStruct *info) {
         node = (StivaleTag*)(node->next);
     }
 }
+
 
 void kinfoPrintSplash(StivaleStruct *info) {
     const VgaColor color1 = VgaColor_White;
@@ -91,6 +97,7 @@ void kinfoPrintSplash(StivaleStruct *info) {
 
     setcolor(VgaColor_LightGray);
 }
+
 
 void kinfoLog(LogStatus status, char *format, ...) {
     va_list va;
