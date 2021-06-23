@@ -1,9 +1,9 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 typedef uintptr_t Vaddr;
 typedef uintptr_t Paddr;
@@ -54,5 +54,6 @@ inline uint64_t alignUp(uint64_t addr, size_t size) {
 inline uint64_t alignDown(uint64_t addr, size_t size) {
     return (addr / size) * size;
 }
+
 
 #endif // MEMORY_H
