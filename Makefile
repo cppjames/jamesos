@@ -1,5 +1,5 @@
 BUILDDIR   = build
-KERNEL_HDD = $(BUILDDIR)/disk.hdd
+KERNEL_HDD = $(BUILDDIR)/jamesos.hdd
 KERNEL_ELF = kernel/jamesos.kernel
 
 BUILDSCRIPT = ./build.sh
