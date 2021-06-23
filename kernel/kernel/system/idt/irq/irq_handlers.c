@@ -5,6 +5,8 @@
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
 
+// TODO - This file is a complete mess
+
 
 // PIT
 void irqHandler0() {
