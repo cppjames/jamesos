@@ -1,8 +1,8 @@
 #ifndef KCONTROL_H
 #define KCONTROL_H
 
-#include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
+#include <kernel/kinfo.h>
 
 #include <stdbool.h>
 #include <sys/cdefs.h>
