@@ -1,9 +1,10 @@
 #include <kernel/system/exceptions.h>
-#include <stdint.h>
 
-#include <kernel/kinfo.h>
-#include <kernel/kdebug.h>
 #include <kernel/kcontrol.h>
+#include <kernel/kdebug.h>
+#include <kernel/kinfo.h>
+
+#include <stdint.h>
 
 #define def_excHandler(exc) \
     void excHandler##exc() { exceptionHandler(exc); }
