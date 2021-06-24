@@ -2,4 +2,4 @@
 isodir
 sysroot
 log_*
-/dev
+dev/**
