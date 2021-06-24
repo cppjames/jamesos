@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 
+static VgaColor getStatusColor(LogStatus status);
+static const char *getStatusText(LogStatus status);
+
 StivaleTagMemmap  *memmap_tag  = 0;
 StivaleTagCmdline *cmdline_tag = 0;
 
@@ -99,18 +102,55 @@ void kinfoPrintSplash(StivaleStruct *info) {
 }
 
 
-void kinfoLog(LogStatus status, char *format, ...) {
+void kinfoLog(LogStatus status, const char *format, ...) {
     va_list va;
     va_start(va, format);
 
-    static const VgaColor bracket_colors[] = {
-        [Log_Success] = VgaColor_Green,
-        [Log_Info] = VgaColor_Cyan,
-        [Log_Warn] = VgaColor_Brown,
-        [Log_Fail] = VgaColor_Red,
-        [Log_Panic] = VgaColor_Magenta
-    };
+    auto status_color = getStatusColor(status);
+    auto status_test = getStatusText(status);
 
+    setcolor(status_color);
+    printf("%s", status_test);
+    
+    setcolor(VgaColor_DarkGray);
+    printf("%s", " :: ");
+
+    setcolor(VgaColor_LightGray);
+    vprintf(format, va);
+    putchar('\n');
+
+    va_end(va);
+}
+
+
+void kinfoModuleLog(const char *module, LogStatus status, const char *format, ...) {
+    va_list va;
+    va_start(va, format);
+
+    auto status_color = getStatusColor(status);
+    auto status_test = getStatusText(status);
+
+    setcolor(status_color);
+    printf("%s", status_test);
+    
+    setcolor(VgaColor_DarkGray);
+    printf("%s", " - ");
+
+    setcolor(VgaColor_White);
+    printf("%s", module);
+    
+    setcolor(VgaColor_DarkGray);
+    printf("%s", " :: ");
+
+    setcolor(VgaColor_LightGray);
+    vprintf(format, va);
+    putchar('\n');
+
+    va_end(va);
+}
+
+
+static VgaColor getStatusColor(LogStatus status) {
     static const VgaColor status_colors[] = {
         [Log_Success] = VgaColor_LightGreen,
         [Log_Info] = VgaColor_LightCyan,
@@ -119,6 +159,11 @@ void kinfoLog(LogStatus status, char *format, ...) {
         [Log_Panic] = VgaColor_LightMagenta
     };
 
+    return status_colors[status];
+}
+
+
+static const char *getStatusText(LogStatus status) {
     static const char *status_strings[] = {
         [Log_Success] = "DONE",
         [Log_Info] = "INFO",
@@ -127,17 +172,5 @@ void kinfoLog(LogStatus status, char *format, ...) {
         [Log_Panic] = "PANIC"
     };
 
-    setcolor(bracket_colors[status]);
-    printf("( ");
-    setcolor(status_colors[status]);
-    printf(status_strings[status]);
-    setcolor(bracket_colors[status]);
-    printf(" ) ");
-
-    setcolor(VgaColor_LightGray);
-
-    vprintf(format, va);
-    putchar('\n');
-
-    va_end(va);
+    return status_strings[status];
 }
