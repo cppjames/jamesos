@@ -1,3 +1,5 @@
+#define MODULE idt
+
 #include <kernel/system/idt.h>
 #include "idt_internal.h"
 #include <kernel/system/exceptions.h>
