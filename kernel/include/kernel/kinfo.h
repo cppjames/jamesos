@@ -29,7 +29,15 @@ typedef struct stivale2_struct_tag_epoch StivaleTagEpoch;
 typedef struct stivale2_mmap_entry StivaleMMapEntry;
 
 void kinfoPrintSplash(StivaleStruct *info);
-void kinfoLog(LogStatus status, char *format, ...);
+void kinfoLog(LogStatus status, const char *format, ...);
+void kinfoModuleLog(const char *module, LogStatus status, const char *format, ...);
+
+#define STRINGIFY(X) #X
+#define STRGY(X) STRINGIFY(X)
+
+#ifdef MODULE
+    #define kinfoLog(args...) kinfoModuleLog(STRGY(MODULE), args)
+#endif
 
 void kinfoParseStivaleStruct(StivaleStruct *info);
 StivaleTagMemmap *kinfoGetMemmapTag();
