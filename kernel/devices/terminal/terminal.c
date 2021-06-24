@@ -1,3 +1,5 @@
+#define MODULE term
+
 #include <devices/terminal.h>
 
 #include <kernel/kinfo.h>
