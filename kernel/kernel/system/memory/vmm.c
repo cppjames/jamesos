@@ -1,3 +1,5 @@
+#define MODULE vmm
+
 #include <kernel/system/vmm.h>
 #include <kernel/system/pmm.h>
 
