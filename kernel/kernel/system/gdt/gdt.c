@@ -1,3 +1,5 @@
+#define MODULE gdt
+
 #include <kernel/system/gdt.h>
 
 #include <kernel/kinfo.h>
