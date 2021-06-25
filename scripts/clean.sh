@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-. ./config.sh
+. scripts/config.sh
 
 for PROJECT in $PROJECTS; do
   printf "\n[ \033[1;96mCLEANING: \033[1;95m%s\033[0m ]\n\n" $PROJECT

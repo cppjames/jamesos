@@ -2,8 +2,8 @@ BUILDDIR   = build
 KERNEL_HDD = $(BUILDDIR)/jamesos.hdd
 KERNEL_ELF = kernel/jamesos.kernel
 
-BUILDSCRIPT = ./build.sh
-CLEANSCRIPT = ./clean.sh
+BUILDSCRIPT = scripts/build.sh
+CLEANSCRIPT = scripts/clean.sh
 
 CFLAGS = -O2 -pipe -Wall -Wextra
 
@@ -43,7 +43,7 @@ QGDBFLAGS := $(QDEBUGFLAGS)				\
 	-S -gdb tcp::9000					\
 
 GDBFLAGS :=								\
-	-ix init_script.gdb					\
+	-ix scripts/init_script.gdb			\
 
 .PHONY: disk run clean all debug gdb
 .DEFAULT_GOAL = disk
