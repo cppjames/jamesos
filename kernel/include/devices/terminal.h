@@ -34,9 +34,9 @@ static inline VgaEntry vgaEntry(uint8_t ch, VgaColorEntry color) {
 	return (VgaEntry)ch | ((VgaEntry)color << 8);
 }
 
-void initTerminal();
+void initTerminal(void);
 
-void terminalClear();
+void terminalClear(void);
 void terminalFill(size_t x, size_t y, size_t w, size_t h, uint8_t ch);
 
 void terminalPutchar(uint8_t ch);
@@ -45,7 +45,7 @@ void terminalWriteString(const char* data);
 
 void terminalSetColor(uint8_t color);
 void terminalMoveCursor(size_t x, size_t y);
-size_t terminalCursorX();
-size_t terminalCursorY();
+size_t terminalCursorX(void);
+size_t terminalCursorY(void);
 
 #endif
