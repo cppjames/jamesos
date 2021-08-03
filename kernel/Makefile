@@ -20,10 +20,10 @@ INCLUDE_PATHS := ../stivale     \
 
 INCLUDE_FLAGS := $(INCLUDE_PATHS:%=-I%)
 
-NASMFLAGS:=-felf64 -g
+NASMFLAGS:=-felf64 -g -P include/macros.asm
 CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra $(INCLUDE_FLAGS) -fno-stack-protector    \
 				  -fno-pic -fomit-frame-pointer -mno-80387 -mno-mmx -mno-3dnow -mno-sse \
-				  -mno-sse2 -masm=intel -mcmodel=kernel -Dauto=__auto_type
+				  -mno-sse2 -masm=intel -mcmodel=kernel -Dauto=__auto_type -Wstrict-prototypes -Wold-style-definition
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS) -static -nostdlib -no-pie -z max-page-size=0x1000
 LIBS:=$(LIBS) -nostdlib -lk -lgcc
