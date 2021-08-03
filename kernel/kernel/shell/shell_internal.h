@@ -14,10 +14,10 @@ void deleteCharacter(size_t index);
 
 void moveCursorLeft(size_t amount);
 void moveCursorRight(size_t amount);
-bool cursorAtStart();
-bool cursorAtEnd();
+bool cursorAtStart(void);
+bool cursorAtEnd(void);
 
-void clearCommand();
-void renderCommand();
+void clearCommand(void);
+void renderCommand(void);
 
 #endif // SHELL_INTERNAL_H
