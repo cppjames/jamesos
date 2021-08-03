@@ -3,9 +3,10 @@
 
 #include "memory.h"
 
-void initPaging();
+void initPaging(void);
 void map(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt);
 Decoded decode(Entry entry, bool bottom_level);
+Paddr getRootTable(void);
 
 Vaddr toVaddr(Paddr paddr);
 Paddr toPaddr(Vaddr vaddr);
