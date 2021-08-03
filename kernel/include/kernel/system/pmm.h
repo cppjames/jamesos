@@ -3,9 +3,9 @@
 
 #include "memory.h"
 
-void initPmm();
+void initPmm(void);
 
-void *kallocFrame();
+void *kallocFrame(void);
 void kfreeFrame(void *frame);
 
 #endif // PMM_H
