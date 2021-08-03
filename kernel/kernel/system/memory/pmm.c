@@ -38,8 +38,8 @@ typedef struct MMap {
     size_t count;
 } MMap;
 
-static void initMemoryMap();
-static void initBitmap();
+static void initMemoryMap(void);
+static void initBitmap(void);
 
 uint8_t *page_bitmap = 0;
 MMap memory_map = { 0 };
@@ -48,7 +48,7 @@ Paddr highest_address = 0;
 size_t max_pages = 0;
 
 
-void initPmm() {
+void initPmm(void) {
     initMemoryMap();
     initBitmap();
 
@@ -81,7 +81,7 @@ static inline void setFrameStatus(size_t index, bool status) {
 }
 
 
-static void *kallocFrameFind()
+static void *kallocFrameFind(void)
 {
     // Find the first free page frame in bitmap
     for (size_t i = 0; i < max_pages; i++) {
@@ -95,7 +95,7 @@ static void *kallocFrameFind()
 }
 
 
-void *kallocFrame() {
+void *kallocFrame(void) {
     static void *frame_buffer[FRAME_BUFFER_SIZE] = { 0 };
     static size_t frame_index = 0;
 
@@ -117,7 +117,7 @@ void kfreeFrame(void *frame) {
 }
 
 
-static void initMemoryMap() {
+static void initMemoryMap(void) {
     StivaleTagMemmap *const memmap_tag = kinfoGetMemmapTag();
     memory_map.count = memmap_tag->entries;
     const size_t mmap_size = sizeof(StivaleMMapEntry) * memmap_tag->entries;
@@ -153,7 +153,7 @@ static void initMemoryMap() {
 }
 
 
-static void initBitmap() {
+static void initBitmap(void) {
     // Find the largest usable memory address
     for (size_t i = 0; i < memory_map.count; i++) {
         MMEntry *entry = &memory_map.entries[i];
