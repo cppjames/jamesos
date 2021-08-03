@@ -141,13 +141,13 @@ typedef struct KeyEvent {
 extern const char KEY_ASCII_MAP[];
 extern const char KEY_ASCII_MAP_UPPER[];
 
-void initKeyboard();
+void initKeyboard(void);
 
 Key codeToKey(unsigned char code);
 void sendKey(Key key);
 
-bool isKeyEvent();
-KeyEvent getKeyEvent();
+bool isKeyEvent(void);
+KeyEvent getKeyEvent(void);
 bool keyEventUpper(KeyEvent event);
 unsigned char keyEventToAscii(KeyEvent event);
 
