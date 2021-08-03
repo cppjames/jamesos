@@ -1,14 +1,15 @@
 #include <kernel/stivale2.h>
 
+#include <devices/keyboard.h>
 #include <kernel/kdebug.h>
 #include <kernel/kinfo.h>
-#include <stdio.h>
-
-#include <devices/keyboard.h>
-#include <kernel/system/idt.h>
-#include <kernel/system/gdt.h>
-#include <kernel/system/vmm.h>
+#include <kernel/sched.h>
 #include <kernel/shell.h>
+#include <kernel/system/gdt.h>
+#include <kernel/system/idt.h>
+#include <kernel/system/vmm.h>
+
+#include <stdio.h>
 
 static uint8_t stack[4096] = { 0 };
 void kmain(StivaleStruct *info);
@@ -38,6 +39,7 @@ void kmain(StivaleStruct *info) {
     initIdt();
     initKeyboard();
     initPaging();
+    initMultitasking();
 
     kinfoPrintSplash(info);
 
