@@ -27,18 +27,17 @@ static Paddr entryToAddress(Entry entry);
 static uint64_t *makeTableAt(Entry *entry, uint64_t bits);
 inline static void makeMappingAt(Entry *entry, Paddr paddr, uint64_t bits);
 
-extern void enableNXE();
+extern void enableNXE(void);
 extern void loadTable(Table table);
-extern uint64_t getTable();
 
-Table root_table = 0;
+Table root_table = NULL;
 const uint64_t levels = 4;
 
 const Vaddr higher_base = 0xFFFF800000000000;
 const Vaddr kernel_base = 0xFFFFFFFF80000000;
 
 
-void initPaging() {
+void initPaging(void) {
     initPmm();
 
     root_table = (Table)kallocFrame();
@@ -148,7 +147,7 @@ inline Vaddr toVaddr(Paddr paddr) {
 
 
 Paddr toPaddr(Vaddr vaddr) {
-    Table table = (Table)toVaddr(getTable());
+    Table table = (Table)toVaddr(getRootTable());
 
     // Walk page tables and get physical address
     for (int level = levels - 1; level >= 0; level--) {
