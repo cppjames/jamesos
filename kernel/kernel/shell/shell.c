@@ -14,7 +14,7 @@ size_t out_cursor_x = 0;
 size_t out_cursor_y = 0;
 
 
-void initShell() {
+void initShell(void) {
     out_cursor_x = terminalCursorX();
     out_cursor_y = terminalCursorY();
 
@@ -99,17 +99,17 @@ void moveCursorRight(size_t amount) {
 }
 
 
-inline bool cursorAtStart() {
+inline bool cursorAtStart(void) {
     return command_cursor == 0;
 }
 
 
-inline bool cursorAtEnd() {
+inline bool cursorAtEnd(void) {
     return command[command_cursor] == 0;
 }
 
 
-void clearCommand() {
+void clearCommand(void) {
     terminalMoveCursor(out_cursor_x, out_cursor_y);
     terminalSetColor(vgaColorEntry(VgaColor_LightGray, VgaColor_Black));
 
@@ -123,7 +123,7 @@ void clearCommand() {
 }
 
 
-void renderCommand() {
+void renderCommand(void) {
     terminalMoveCursor(out_cursor_x, out_cursor_y);
     
     for (size_t current = 0; command[current]; current++) {
