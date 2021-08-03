@@ -14,12 +14,12 @@ StivaleTagMemmap  *memmap_tag  = 0;
 StivaleTagCmdline *cmdline_tag = 0;
 
 
-inline StivaleTagMemmap *kinfoGetMemmapTag() {
+inline StivaleTagMemmap *kinfoGetMemmapTag(void) {
     return memmap_tag;
 }
 
 
-inline StivaleTagCmdline *kinfoGetCmdlineTag() {
+inline StivaleTagCmdline *kinfoGetCmdlineTag(void) {
     return cmdline_tag;
 }
 
@@ -113,7 +113,7 @@ void kinfoLog(LogStatus status, const char *format, ...) {
     printf("%s", status_test);
     
     setcolor(VgaColor_DarkGray);
-    printf("%s", " :: ");
+    printf("%s", " - ");
 
     setcolor(VgaColor_LightGray);
     vprintf(format, va);
@@ -134,13 +134,13 @@ void kinfoModuleLog(const char *module, LogStatus status, const char *format, ..
     printf("%s", status_test);
     
     setcolor(VgaColor_DarkGray);
-    printf("%s", " - ");
+    printf("%s", " :: ");
 
     setcolor(VgaColor_White);
     printf("%s", module);
     
     setcolor(VgaColor_DarkGray);
-    printf("%s", " :: ");
+    printf("%s", " - ");
 
     setcolor(VgaColor_LightGray);
     vprintf(format, va);
