@@ -11,7 +11,7 @@ typedef struct {
     uint64_t base;
 } __attribute__((packed)) GdtPtr;
 
-extern void reloadSegments();
+extern void reloadSegments(void);
 extern void loadGdt(GdtPtr *gdt_ptr);
 
 uint64_t gdt[3] = {
@@ -26,7 +26,7 @@ GdtPtr gdt_ptr = (GdtPtr) {
 };
 
 
-void initGdt() {
+void initGdt(void) {
     loadGdt(&gdt_ptr);
     reloadSegments();
 
