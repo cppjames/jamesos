@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 __attribute__((noreturn)) void _kpanic(char *format, ...);
-void khalt();
+void khalt(void);
 
 #define STRINGIFY(X) #X
 #define STRGY(X) STRINGIFY(X)
