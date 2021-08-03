@@ -19,7 +19,7 @@ loadGdt:
 ; Function to reload all segment registers after the GDT has been loaded.
 ;
 ; C prototype:
-;     void reloadSegments();
+;     void reloadSegments(void);
 
 reloadSegments:
     ; Set up interrupts stack frame
