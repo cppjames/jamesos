@@ -1,5 +1,7 @@
 #include <devices/keyboard.h>
 
+#include <kernel/system/idt.h>
+
 #include <stddef.h>
 #include <stdio.h>
 #include <sys/io.h>
@@ -16,12 +18,13 @@ typedef struct EventQueue {
 	size_t end;
 } EventQueue;
 
-static void setKeyboardScanCode();
+void keyboardIrqHandler(void);
+static void setKeyboardScanCode(void);
 
 static void updateState(Key key);
 static void updateModifiers(Key key);
 static void updateKeySwitches(Key key);
-static void sendState();
+static void sendState(void);
 
 static size_t nextEventQueuePos(size_t pos);
 
@@ -37,9 +40,27 @@ static EventQueue event_queue = {
 };
 
 
-void initKeyboard() {
-    // TODO - Bind IRQ handler here
+void initKeyboard(void) {
+    registerIrqHandler(Irq_KeyboardInterrupt, keyboardIrqHandler);
     setKeyboardScanCode();
+    clearIrqMask(Irq_KeyboardInterrupt);
+}
+
+
+void keyboardIrqHandler(void) {
+    unsigned char scan_code = inb(KEYBOARD_PORT);
+
+    Key key = codeToKey(scan_code);
+    if (key.code == KeyCode_None)
+        return;
+
+    sendKey(key);
+
+    if (key.code == KeyCode_Pause) {
+        Key key_release = key;
+        key_release.press = false;
+        sendKey(key_release);
+    }
 }
 
 
@@ -49,12 +70,12 @@ void sendKey(Key key) {
 }
 
 
-bool isKeyEvent() {
+bool isKeyEvent(void) {
     return event_queue.current != event_queue.end;
 }
 
 
-KeyEvent getKeyEvent() {
+KeyEvent getKeyEvent(void) {
     // There is a key event in the queue
     if (isKeyEvent()) {
         size_t current = event_queue.current;
@@ -84,7 +105,7 @@ unsigned char keyEventToAscii(KeyEvent event) {
 }
 
 
-void setKeyboardScanCode() {
+void setKeyboardScanCode(void) {
     while (true) {
         outb(CHANGE_SCANCODE_SET, KEYBOARD_PORT);
         outb(SCANCODE_SET_1, KEYBOARD_PORT);
@@ -129,7 +150,7 @@ void updateKeySwitches(Key key) {
 }
 
 
-void sendState() {
+void sendState(void) {
     event_queue.buffer[event_queue.end] = keyboard_state;
 	event_queue.end = nextEventQueuePos(event_queue.end);
 }
