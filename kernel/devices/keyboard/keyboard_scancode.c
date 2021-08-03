@@ -27,15 +27,15 @@ static const KeyCode MBCODE_TO_KEY_MAP[256];
 #define isMultibyte() (sequenceLength() > 0)
 #define isMultibyteStart() (sequenceLength() == 1)
 
-static void addMultibyteCode();
-static void resetSequence();
+static void addMultibyteCode(void);
+static void resetSequence(void);
 
 static Key constructKeyFromCode(unsigned char code);
 static Key constructKeyFromCodeMB(unsigned char code);
-static Key constructEmptyKey();
-static Key constructPrintScreenPressKey();
-static Key constructPrintScreenReleaseKey();
-static Key constructPauseKey();
+static Key constructEmptyKey(void);
+static Key constructPrintScreenPressKey(void);
+static Key constructPrintScreenReleaseKey(void);
+static Key constructPauseKey(void);
 
 
 Key codeToKey(unsigned char code) {
@@ -98,12 +98,12 @@ next_code:
 }
 
 
-static inline void addMultibyteCode() {
+static inline void addMultibyteCode(void) {
     setSequenceLength(sequenceLength() + 1);
 }
 
 
-static inline void resetSequence() {
+static inline void resetSequence(void) {
     is_pause = false;
     is_print_screen_press = false;
     is_print_screen_release = false;
@@ -121,22 +121,22 @@ static inline Key constructKeyFromCodeMB(unsigned char code) {
 }
 
 
-static inline Key constructEmptyKey() {
+static inline Key constructEmptyKey(void) {
     return (Key) { .code = KeyCode_None };
 }
 
 
-static inline Key constructPrintScreenPressKey() {
+static inline Key constructPrintScreenPressKey(void) {
     return (Key) { .code = KeyCode_PrintScreen, .press = true };
 }
 
 
-static inline Key constructPrintScreenReleaseKey() {
+static inline Key constructPrintScreenReleaseKey(void) {
     return (Key) { .code = KeyCode_PrintScreen, .press = false };
 }
 
 
-static inline Key constructPauseKey() {
+static inline Key constructPauseKey(void) {
     return (Key) { .code = KeyCode_Pause, .press = true };
 }
 
