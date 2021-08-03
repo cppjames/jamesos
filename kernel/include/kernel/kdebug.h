@@ -20,7 +20,7 @@ void kdebugPutchar(char ch, __attribute__((unused)) void* arg);
 #define kdebugLog(...) \
     fctprintf(kdebugPutchar, (void*)0, __VA_ARGS__)
 
-void kbreakWaitKey();
+void kbreakWaitKey(void);
 
 #define kbreak(...)                            \
     do {                                       \
