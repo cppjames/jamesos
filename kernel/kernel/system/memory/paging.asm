@@ -8,7 +8,7 @@ IA32_EFER_NXE       equ     11              ; IA32_EFER.NXE (no execute) bit
 section .text:
 
 global loadTable
-global getTable
+global getRootTable
 global enableNXE
 
 ; *********************************************************
@@ -32,9 +32,9 @@ loadTable:
 ;     (qword) rax - PML4 paddr
 ;
 ; C prototype:
-;     uint64_t getTable();
+;     uint64_t getRootTable(void);
 
-getTable:
+getRootTable:
     mov rax, cr3
     ret
 
@@ -44,7 +44,7 @@ getTable:
 ; needs to be called once.
 ;
 ; C prototype:
-;     void enableNXE();
+;     void enableNXE(void);
 
 enableNXE:
     push rax
