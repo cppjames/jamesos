@@ -7,21 +7,21 @@
 #include <stdint.h>
 
 #define def_excHandler(exc) \
-    void excHandler##exc() { exceptionHandler(exc); }
+    void excHandler##exc(void) { exceptionHandler(exc); }
 
 #define def_excHandlerErrorCode(exc) \
     void excHandler##exc(uint64_t error_code) { (void)error_code; exceptionHandler(exc); }
 
 static const char *exceptions[] = {
-    [0] = "Division by Zero",
-    [1] = "Debug",
-    [2] = "Non Maskable Interrupt",
-    [3] = "Breakpoint",
-    [4] = "Overflow",
-    [5] = "Bound Range Exceeded",
-    [6] = "Invalid opcode",
-    [7] = "Device not available",
-    [8] = "Double Fault",
+    [0]  = "Division by Zero",
+    [1]  = "Debug",
+    [2]  = "Non Maskable Interrupt",
+    [3]  = "Breakpoint",
+    [4]  = "Overflow",
+    [5]  = "Bound Range Exceeded",
+    [6]  = "Invalid opcode",
+    [7]  = "Device not available",
+    [8]  = "Double Fault",
     [10] = "Invalid TSS",
     [11] = "Segment not present",
     [12] = "Stack Exception",
