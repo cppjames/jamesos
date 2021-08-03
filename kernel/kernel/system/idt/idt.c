@@ -8,51 +8,50 @@
 #include <kernel/kinfo.h>
 #include <kernel/kdebug.h>
 
-static void remapPic();
-static void setExceptionEntries();
-static void setIrqEntries();
+static void remapPic(void);
+static void setExceptionEntries(void);
+static void setIrqEntries(void);
+static inline void maskAllIrqs(void);
 static inline void setIdtEntry(uint8_t index, void *irq_ptr);
-static inline IdtPtr getIdtPtr();
+static inline IdtPtr getIdtPtr(void);
 
 IdtEntry idt[256];
+IrqHandler irqHandlers[16];
 
-
-void initIdt() {
+void initIdt(void) {
     remapPic();
 
     setExceptionEntries();
     setIrqEntries();
     IdtPtr idt_ptr = getIdtPtr();
     asm volatile ("lidt %0" :: "m" (idt_ptr) : "memory");
+
+    maskAllIrqs();
     asm volatile ("sti");
 
     kinfoLog(Log_Success, "IDT loaded.");
 }
 
 
-static void remapPic() {
-    // TODO - Maybe have these in 2 arrays?
+static void remapPic(void) {
+    unsigned char ports[] =  { 0x20, 0xA0, 0x21, 0xA1, 0x21, 0xA1, 0x21, 0xA1, 0x21, 0xA1 };
+    unsigned char values[] = { 0x11, 0x11, 0x20, 0x28, 0x04, 0x02, 0x01, 0x01, 0x00, 0x00 };
 
-    outb(0x20, 0x11);
-    outb(0xA0, 0x11);
-
-    outb(0x21, 0x20);
-    outb(0xA1, 0x28);
-
-    outb(0x21, 0x04);
-    outb(0xA1, 0x02);
-
-    outb(0x21, 0x01);
-    outb(0xA1, 0x01);
-
-    outb(0x21, 0x00);
-    outb(0xA1, 0x00);
+    size_t len = sizeof ports / sizeof ports[0];
+    for (size_t i = 0; i < len; i++)
+        outb(ports[i], values[i]);
 
     kinfoLog(Log_Success, "PIC remapped.");
 }
 
 
-static inline void setIdtEntry(uint8_t index, void *irq_ptr) {
+void maskAllIrqs(void) {
+    for (unsigned char line = 0; line < 16; line++)
+        setIrqMask(line);
+}
+
+
+static void setIdtEntry(uint8_t index, void *irq_ptr) {
     uintptr_t irq_address = (uintptr_t)irq_ptr;
 
     idt[index] = (IdtEntry) {
@@ -69,7 +68,7 @@ static inline void setIdtEntry(uint8_t index, void *irq_ptr) {
 }
 
 
-static inline IdtPtr getIdtPtr() {
+static IdtPtr getIdtPtr(void) {
     return (IdtPtr) {
         .limit = sizeof(idt) - 1,
         .base = (uint64_t)idt
@@ -77,9 +76,50 @@ static inline IdtPtr getIdtPtr() {
 }
 
 
+void registerIrqHandler(IrqLine line, IrqHandler handler) {
+    irqHandlers[line] = handler;
+}
+
+
+void setIrqMask(IrqLine irqLine) {
+    uint16_t port;
+    uint8_t value;
+ 
+    if(irqLine < 8) {
+        // Master PIC data port
+        port = 0x21;
+    } else {
+        // Slave PIC data port
+        port = 0xA1;
+        irqLine -= 8;
+    }
+
+    value = inb(port) | (1 << irqLine);
+    outb(port, value);
+}
+
+
+void clearIrqMask(IrqLine irqLine) {
+    uint16_t port;
+    uint8_t value;
+ 
+    if(irqLine < 8) {
+        // Master PIC data port
+        port = 0x21;
+    } else {
+        // Slave PIC data port
+        port = 0xA1;
+        irqLine -= 8;
+    }
+    
+    value = inb(port) & ~(1 << irqLine);
+    outb(port, value); 
+}
+
+
 // TODO - Ugh. Do something about this
 
-static void setExceptionEntries() {
+static void setExceptionEntries(void) {
     setIdtEntry(0,  excIsr0);
     setIdtEntry(1,  excIsr1);
     setIdtEntry(2,  excIsr2);
@@ -105,7 +145,7 @@ static void setExceptionEntries() {
 }
 
 
-static void setIrqEntries() {
+static void setIrqEntries(void) {
     setIdtEntry(32, irqIsr0);
     setIdtEntry(33, irqIsr1);
     setIdtEntry(34, irqIsr2);
