@@ -40,7 +40,7 @@ void kinfoModuleLog(const char *module, LogStatus status, const char *format, ..
 #endif
 
 void kinfoParseStivaleStruct(StivaleStruct *info);
-StivaleTagMemmap *kinfoGetMemmapTag();
-StivaleTagCmdline *kinfoGetCmdlineTag();
+StivaleTagMemmap *kinfoGetMemmapTag(void);
+StivaleTagCmdline *kinfoGetCmdlineTag(void);
 
 #endif // KINFO_H
