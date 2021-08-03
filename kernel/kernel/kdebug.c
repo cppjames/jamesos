@@ -27,7 +27,7 @@ void kdebugPutchar(char ch, __attribute__((unused)) void* arg) {
 }
 
 
-void kbreakWaitKey() {
+void kbreakWaitKey(void) {
     while (true) {
         KeyEvent ev = getKeyEvent();
         if ((ev.key.code == KeyCode_Space || ev.key.code == KeyCode_Return) && ev.key.press)
