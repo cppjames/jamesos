@@ -21,13 +21,13 @@ static uint16_t *terminal_buffer;
 static void terminalPutcharAt(size_t x, size_t y, uint8_t ch);
 static void terminalPutEntryAt(size_t x, size_t y, uint16_t entry);
 static uint16_t terminalEntryAt(size_t x, size_t y);
-static void terminalAdvance();
-static void terminalNewline();
-static void terminalScroll();
+static void terminalAdvance(void);
+static void terminalNewline(void);
+static void terminalScroll(void);
 static size_t getIndex(size_t x, size_t y);
 
 
-void initTerminal() {
+void initTerminal(void) {
 	terminal_row = 0;
 	terminal_column = 0;
 	terminal_color = vgaColorEntry(VgaColor_LightGray, VgaColor_Black);
@@ -38,7 +38,7 @@ void initTerminal() {
 }
 
 
-void terminalClear() {
+void terminalClear(void) {
     terminalFill(0, 0, VGA_WIDTH, VGA_HEIGHT, ' ');
 }
 
@@ -63,9 +63,10 @@ void terminalWriteString(const char *data) {
 
 
 void terminalPutchar(uint8_t ch) {
-    if (!ch) return;
+    if (ch == '\0')
+        return;
 
-	if (ch == '\n') {
+    if (ch == '\n') {
         terminalNewline();
         return;
     }
@@ -75,13 +76,13 @@ void terminalPutchar(uint8_t ch) {
 }
 
 
-void terminalAdvance() {
+void terminalAdvance(void) {
     if (++terminal_column == VGA_WIDTH)
         terminalNewline();
 }
 
 
-void terminalNewline() {
+void terminalNewline(void) {
     terminal_column = 0;
     
     if (terminal_row < VGA_HEIGHT-1)
@@ -91,7 +92,7 @@ void terminalNewline() {
 }
 
 
-static void terminalScroll() {
+static void terminalScroll(void) {
     for (size_t row = 0; row < VGA_HEIGHT-1; row++)
         for (size_t col = 0; col < VGA_WIDTH; col++)
             terminalPutEntryAt(col, row, terminalEntryAt(col, row + 1));
@@ -133,11 +134,11 @@ void terminalMoveCursor(size_t x, size_t y) {
 }
 
 
-size_t terminalCursorX() {
+size_t terminalCursorX(void) {
     return terminal_column;
 }
 
 
-size_t terminalCursorY() {
+size_t terminalCursorY(void) {
     return terminal_row;
 }
