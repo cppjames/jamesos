@@ -3,3 +3,4 @@ isodir
 sysroot
 log_*
 dev/**
+.vscode/**
