@@ -11,9 +11,9 @@
 static void remapPic(void);
 static void setExceptionEntries(void);
 static void setIrqEntries(void);
-static inline void maskAllIrqs(void);
-static inline void setIdtEntry(uint8_t index, void *irq_ptr);
-static inline IdtPtr getIdtPtr(void);
+static void maskAllIrqs(void);
+static void setIdtEntry(uint8_t index, void *irqPtr);
+static IdtPtr getIdtPtr(void);
 
 IdtEntry idt[256];
 IrqHandler irqHandlers[16];
@@ -23,8 +23,8 @@ void initIdt(void) {
 
     setExceptionEntries();
     setIrqEntries();
-    IdtPtr idt_ptr = getIdtPtr();
-    asm volatile ("lidt %0" :: "m" (idt_ptr) : "memory");
+    IdtPtr idtPtr = getIdtPtr();
+    asm volatile ("lidt %0" :: "m" (idtPtr) : "memory");
 
     maskAllIrqs();
     asm volatile ("sti");
@@ -51,19 +51,19 @@ void maskAllIrqs(void) {
 }
 
 
-static void setIdtEntry(uint8_t index, void *irq_ptr) {
-    uintptr_t irq_address = (uintptr_t)irq_ptr;
+static void setIdtEntry(uint8_t index, void *irqPtr) {
+    uintptr_t irqAddress = (uintptr_t)irqPtr;
 
     idt[index] = (IdtEntry) {
-        .offset_lowerbits =  (irq_address & OFFSET_MASK_LOWER),
-        .offset_middlebits = (irq_address & OFFSET_MASK_MIDDLE) >> 16,
-        .offset_higherbits = (irq_address & OFFSET_MASK_HIGHER) >> 32,
+        .offsetLowerBits =  (irqAddress & OFFSET_MASK_LOWER),
+        .offsetMiddleBits = (irqAddress & OFFSET_MASK_MIDDLE) >> 16,
+        .offsetHigherBits = (irqAddress & OFFSET_MASK_HIGHER) >> 32,
 
         .zero_1 = 0,
         .zero_2 = 0,
 
         .selector = KERNEL_CODE_SEGMENT_OFFSET,
-        .type_attr = INTERRUPT_GATE
+        .typeAttr = INTERRUPT_GATE
     };
 }
 
