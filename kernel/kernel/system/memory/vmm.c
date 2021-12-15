@@ -15,7 +15,7 @@
 #define ADDR_MASK   ~firstBits(entryMaskBits(0))
 
 static size_t mapLargest(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt);
-static bool canMap(size_t size, Vaddr vaddr, Paddr paddr, size_t page_size);
+static bool canMap(size_t size, Vaddr vaddr, Paddr paddr, size_t pageSize);
 
 static uint64_t extraBits(Perms perm, MemoryType mt, uint64_t level, bool mapping);
 static size_t getIndex(Vaddr vaddr, uint64_t level);
@@ -30,23 +30,23 @@ inline static void makeMappingAt(Entry *entry, Paddr paddr, uint64_t bits);
 extern void enableNXE(void);
 extern void loadTable(Table table);
 
-Table root_table = NULL;
+Table rootTable = NULL;
 const uint64_t levels = 4;
 
-const Vaddr higher_base = 0xFFFF800000000000;
-const Vaddr kernel_base = 0xFFFFFFFF80000000;
+const Vaddr higherBase = 0xFFFF800000000000;
+const Vaddr kernelBase = 0xFFFFFFFF80000000;
 
 
 void initPaging(void) {
     initPmm();
 
-    root_table = (Table)kallocFrame();
-    identity_map(0x0, GiB(5), Perm_RWX, MemoryType_Memory);
-    map(higher_base, 0x0, GiB(5), Perm_RWX, MemoryType_Memory);
-    map(kernel_base, 0x0, GiB(2), Perm_RWX, MemoryType_Memory);
+    rootTable = (Table)kallocFrame();
+    identityMap(0x0, GiB(5), Perm_RWX, MemoryType_Memory);
+    map(higherBase, 0x0, GiB(5), Perm_RWX, MemoryType_Memory);
+    map(kernelBase, 0x0, GiB(2), Perm_RWX, MemoryType_Memory);
     
     enableNXE();
-    loadTable((Table)toPaddr((Vaddr)root_table));
+    loadTable((Table)toPaddr((Vaddr)rootTable));
 
     kinfoLog(Log_Success, "Paging enabled.");
 }
@@ -57,11 +57,11 @@ void map(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt) {
     size &= ~firstBits(entryMaskBits(0));
 
     while (size) {
-        size_t max_map_size = mapLargest(vaddr, paddr, size, perm, mt);
+        size_t maxMapSize = mapLargest(vaddr, paddr, size, perm, mt);
 
-        vaddr += max_map_size;
-        paddr += max_map_size;
-        size -= max_map_size;
+        vaddr += maxMapSize;
+        paddr += maxMapSize;
+        size -= maxMapSize;
     }
 }
 
@@ -69,25 +69,25 @@ void map(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt) {
 static size_t mapLargest(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt) {
     uint64_t level = levels - 1;
     
-    size_t current_step_size = bit(entryMaskBits(level));
-    Table current_table = root_table;
+    size_t currentStepSize = bit(entryMaskBits(level));
+    Table currentTable = rootTable;
 
     while (true) {
-        const uint64_t map_bits = extraBits(perm, mt, level, true);
-        const uint64_t tbl_bits = extraBits(perm, mt, level, false);
+        const uint64_t mapBits = extraBits(perm, mt, level, true);
+        const uint64_t tableBits = extraBits(perm, mt, level, false);
         
         const size_t idx = getIndex(vaddr, level);
-        const Decoded decoded = decode(current_table[idx], !level);
+        const Decoded decoded = decode(currentTable[idx], !level);
 
         if (decoded == Decoded_Mapping) {
             kpanic("Overlapping mapping at 0x%016zX.\n"
-                "PTE is 0x%016zX.", vaddr, current_table[idx]);
+                "PTE is 0x%016zX.", vaddr, currentTable[idx]);
         } else if (decoded == Decoded_Table) {
             // Iterate to the next level
         } else if (decoded == Decoded_Empty) {
-            if (canMap(size, vaddr, paddr, current_step_size)) {
-                makeMappingAt(current_table + idx, paddr, map_bits);
-                return current_step_size;
+            if (canMap(size, vaddr, paddr, currentStepSize)) {
+                makeMappingAt(currentTable + idx, paddr, mapBits);
+                return currentStepSize;
             }
         }
 
@@ -95,9 +95,9 @@ static size_t mapLargest(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, Memo
             kpanic("Bottom level reached. Mapping not possible.\n"
                 "PTE is 0x%016zX.", (size_t)decoded);
 
-        current_table = makeTableAt(&current_table[idx], tbl_bits);
+        currentTable = makeTableAt(&currentTable[idx], tableBits);
         --level;
-        current_step_size = bit(entryMaskBits(level));
+        currentStepSize = bit(entryMaskBits(level));
     }
 }
 
@@ -127,6 +127,8 @@ static uint64_t extraBits(Perms perm, __attribute__((unused)) MemoryType mt, uin
 
 
 inline static size_t entryMaskBits(uint64_t level) {
+    // Base index uses 12 bits.
+    // Page directories use one 9-bit index for each level.
     return 12 + (level * 9);
 }
 
@@ -142,7 +144,7 @@ inline static size_t vaddrBaseOffset(Vaddr vaddr, uint64_t level) {
 
 
 inline Vaddr toVaddr(Paddr paddr) {
-    return paddr + higher_base;
+    return paddr + higherBase;
 }
 
 
@@ -151,25 +153,25 @@ Paddr toPaddr(Vaddr vaddr) {
 
     // Walk page tables and get physical address
     for (int level = levels - 1; level >= 0; level--) {
-        Entry next_entry = table[getIndex(vaddr, level)];
-        if (decode(next_entry, !level) == Decoded_Mapping)
-            return entryToAddress(next_entry) + vaddrBaseOffset(vaddr, level);
+        Entry nextEntry = table[getIndex(vaddr, level)];
+        if (decode(nextEntry, !level) == Decoded_Mapping)
+            return entryToAddress(nextEntry) + vaddrBaseOffset(vaddr, level);
 
         // Get next table from current entry
-        table = (Table)toVaddr(entryToAddress(next_entry));
+        table = (Table)toVaddr(entryToAddress(nextEntry));
     }
 
     kpanic("Could not get paddr of vaddr: 0x%016zX", vaddr);
 }
 
 
-Decoded decode(Entry entry, bool bottom_level) {
+Decoded decode(Entry entry, bool bottomLevel) {
     // Present bit is off, then entry is empty
     if ((entry & bit(0)) == 0)
         return Decoded_Empty;
     
     // Entry contains the paddr of a page frame
-    if (bottom_level || entry & bit(7))
+    if (bottomLevel || entry & bit(7))
         return Decoded_Mapping;
 
     // Entry contains an address to the next table
@@ -177,13 +179,13 @@ Decoded decode(Entry entry, bool bottom_level) {
 }
 
 
-static bool canMap(size_t size, Vaddr vaddr, Paddr paddr, size_t page_size) {
+static bool canMap(size_t size, Vaddr vaddr, Paddr paddr, size_t pageSize) {
     // We can only map if page size is below 1GiB and less than the amount of memory to map
-    if (page_size > GiB(1) || page_size > size)
+    if (pageSize > GiB(1) || pageSize > size)
         return false;
     
     // We can only map if both addresses are page-size-aligned 
-    const uint64_t mask = page_size - 1;
+    const uint64_t mask = pageSize - 1;
     if (vaddr & mask) return false;
     if (paddr & mask) return false;
     
