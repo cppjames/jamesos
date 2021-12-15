@@ -22,9 +22,9 @@ typedef void (*TaskFunction)(void);
 
 extern TaskControlBlock *currentTask;
 
-extern const unsigned counterFreqHertz;
-extern const unsigned timerFreqHerts;
-extern const unsigned long taskQuantumNs;
+extern const long counterFreqHz;
+extern const long timerFreqHz;
+extern const long taskQuantumNs;
 
 void initMultitasking(void);
 
@@ -32,23 +32,23 @@ void newKernelTask(TaskFunction function, const char *name);
 void switchToTask(TaskControlBlock *task);
 void contextSwitch(TaskControlBlock *task);
 
-void updateTimeElapsed(void);
+void updateTimeElapsed(long elapsed);
 void resetNsElapsed(void);
 
-void setTimerFrequency(unsigned freq);
-unsigned readTimerCount(void);
+void setTimerFrequency(long freq);
+long readPitTimeElapsed(void);
 
-#define secondsToMs(s) ((s)  * 1000UL)
-#define msToUs(ms)     ((ms) * 1000UL)
-#define usToNs(us)     ((us) * 1000UL)
+#define secondsToMs(s) ((s)  * 1000L)
+#define msToUs(ms)     ((ms) * 1000L)
+#define usToNs(us)     ((us) * 1000L)
 
 #define secondsToUs(s) msToUs(secondsToMs(s))
 #define secondsToNs(s) usToNs(secondsToUs(s))
 #define msToNs(ms)     usToNs(msToUs(ms))
 
-#define nsToUs(ns)      ((ns) / 1000UL)
-#define usToMs(us)      ((us) / 1000UL)
-#define msToSeconds(ms) ((ms) / 1000UL)
+#define nsToUs(ns)      ((ns) / 1000L)
+#define usToMs(us)      ((us) / 1000L)
+#define msToSeconds(ms) ((ms) / 1000L)
 
 #define nsToMs(ns)      usToMs(nsToUs(ns))
 #define nsToSeconds(ns) msToSeconds(nsToMs(ns))
