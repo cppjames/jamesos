@@ -14,7 +14,7 @@
 static uint8_t stack[4096] = { 0 };
 void kmain(StivaleStruct *info);
 
-StivaleHTagSmp smp_request = {
+StivaleHTagSmp smpRequest = {
     .tag = {
         .identifier = STIVALE2_HEADER_TAG_SMP_ID,
         .next       = 0
@@ -27,7 +27,7 @@ StivaleHeader header2 = {
     .entry_point = (uint64_t)kmain,
     .stack       = (uintptr_t)stack + sizeof(stack),
     .flags       = 0,
-    .tags        = (uint64_t)&smp_request
+    .tags        = (uint64_t)&smpRequest
 };
 
 
