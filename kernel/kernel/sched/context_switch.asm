@@ -4,8 +4,6 @@ extern currentTask
 extern taskStackTopOffset
 extern taskAddressSpaceOffset
 
-extern updateTimeElapsed
-
 contextSwitch:
     pushaq
     cli
@@ -17,7 +15,7 @@ contextSwitch:
     ;-----
     ; Load next task's state
 
-    mov [currentTask], rdi          ; rdi contains the address of the next task
+    mov [currentTask], rdi          ; Load address of the next task from rdi
     mov rsp, [rdi + rdx]            ; Load top of the stack from next task's control block
     
     mov rdx, [taskAddressSpaceOffset]
