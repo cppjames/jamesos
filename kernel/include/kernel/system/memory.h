@@ -33,8 +33,8 @@ typedef enum Decoded {
     Decoded_Table
 } Decoded;
 
-extern const uint64_t higher_base;
-extern const uint64_t kernel_base;
+extern const uint64_t higherBase;
+extern const uint64_t kernelBase;
 
 // TODO - Move these somewhere else
 #define KiB(N) ((uint64_t)(N) << 10)
