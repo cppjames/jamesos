@@ -12,7 +12,7 @@ typedef struct {
 } __attribute__((packed)) GdtPtr;
 
 extern void reloadSegments(void);
-extern void loadGdt(GdtPtr *gdt_ptr);
+extern void loadGdt(GdtPtr *gdtPtr);
 
 uint64_t gdt[3] = {
     [0] = 0x000F00000000FFFF, // Null
@@ -20,14 +20,14 @@ uint64_t gdt[3] = {
     [2] = 0x0000920000000000  // 64 bit data
 };
 
-GdtPtr gdt_ptr = (GdtPtr) {
+GdtPtr gdtPtr = (GdtPtr) {
     .limit = sizeof(gdt) - 1,
     .base = (uint64_t)&gdt[0]
 };
 
 
 void initGdt(void) {
-    loadGdt(&gdt_ptr);
+    loadGdt(&gdtPtr);
     reloadSegments();
 
     kinfoLog(Log_Success, "GDT loaded.");
