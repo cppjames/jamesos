@@ -13,21 +13,21 @@
 #define PRINT_SCREEN_SEQUENCE_LENGTH 4
 #define PAUSE_SEQUENCE_LENGTH        6
 
-static unsigned char scancode_sequence_length;
+static unsigned char scancodeSequenceLength = 0;
 
-static bool is_print_screen_press = false;
-static bool is_print_screen_release = false;
-static bool is_pause = false;
+static bool isPrintScreenPress = false;
+static bool isPrintScreenRelease = false;
+static bool isPause = false;
 
 static const KeyCode CODE_TO_KEY_MAP[256];
 static const KeyCode MBCODE_TO_KEY_MAP[256];
 
-#define sequenceLength() scancode_sequence_length
-#define setSequenceLength(len) (scancode_sequence_length = (len))
+#define sequenceLength() scancodeSequenceLength
+#define setSequenceLength(len) (scancodeSequenceLength = (len))
 #define isMultibyte() (sequenceLength() > 0)
 #define isMultibyteStart() (sequenceLength() == 1)
 
-static void addMultibyteCode(void);
+static void advanceMultibyteSequence(void);
 static void resetSequence(void);
 
 static Key constructKeyFromCode(unsigned char code);
@@ -38,7 +38,21 @@ static Key constructPrintScreenReleaseKey(void);
 static Key constructPauseKey(void);
 
 
+// Convert scancode to key.
+//
+// For single-byte scancodes, the mapping is trivial.
+// All multibyte scancode sequences begin with the same code (MULTIBYTE_BEGIN).
+//
+// The only keys that use more than 2 scancodes are:
+//     - Pause key (can only be pressed)
+//     - PrintScreen key press
+//     - PrintScreen key release
+// Once one of these is detected, there is no need to keep track of the scancodes that follow.
+// Each sequence is distinct, so we only need to count the number of scancodes and return the correct key when the sequence ends.
+//
+// When a sequence has not yet ended, an empty key is returned (which has KeyCode_None as its code).
 Key codeToKey(unsigned char code) {
+    // We are in the middle of a multibyte sequence
     if (isMultibyte()) {
 
         // Key is the second of a multibyte sequence
@@ -49,33 +63,34 @@ Key codeToKey(unsigned char code) {
                 code == PRINT_SCREEN_RELEASE_BEGIN ||
                 code == PAUSE_SECOND_BYTE) {
                 
-                is_print_screen_press = (code == PRINT_SCREEN_PRESS_BEGIN);
-                is_print_screen_release = (code == PRINT_SCREEN_RELEASE_BEGIN);
-                is_pause = (code == PAUSE_SECOND_BYTE);
+                isPrintScreenPress = (code == PRINT_SCREEN_PRESS_BEGIN);
+                isPrintScreenRelease = (code == PRINT_SCREEN_RELEASE_BEGIN);
+                isPause = (code == PAUSE_SECOND_BYTE);
 
-                goto next_code;
+                goto nextCode;
             }
 
+            // Multibyte sequence ends here, return corresponding key
             resetSequence();
             return constructKeyFromCodeMB(code);
         } else {
-            addMultibyteCode();
+            advanceMultibyteSequence();
             size_t seqLen = sequenceLength();
 
             // Key is the last of a "print screen" press multibyte sequence
-            if (is_print_screen_press && seqLen == PRINT_SCREEN_SEQUENCE_LENGTH) {
+            if (isPrintScreenPress && seqLen == PRINT_SCREEN_SEQUENCE_LENGTH) {
                 resetSequence();
                 return constructPrintScreenPressKey();
             }
 
             // Key is the last of a "print screen" release multibyte sequence
-            if (is_print_screen_release && seqLen == PRINT_SCREEN_SEQUENCE_LENGTH) {
+            if (isPrintScreenRelease && seqLen == PRINT_SCREEN_SEQUENCE_LENGTH) {
                 resetSequence();
                 return constructPrintScreenReleaseKey();
             }
             
             // Key is the last of a "pause" press multibyte sequence
-            if (is_pause && seqLen == PAUSE_SEQUENCE_LENGTH) {
+            if (isPause && seqLen == PAUSE_SEQUENCE_LENGTH) {
                 resetSequence();
                 return constructPauseKey();
             }
@@ -85,59 +100,78 @@ Key codeToKey(unsigned char code) {
     } else {
         // Key is the beginning of a multibyte sequence
         if (code == MULTIBYTE_BEGIN || code == PAUSE_BEGIN) {
-            is_pause = (code == PAUSE_BEGIN);
-            goto next_code;
+            isPause = (code == PAUSE_BEGIN);
+            goto nextCode;
         }
 
+        // Code is single-byte, return corresponding key 
         return constructKeyFromCode(code);
     }
 
-next_code:
-    addMultibyteCode();
+    // Return placeholder key and wait for next code in sequence
+nextCode:
+    advanceMultibyteSequence();
     return constructEmptyKey();
 }
 
 
-static inline void addMultibyteCode(void) {
+static void advanceMultibyteSequence(void) {
     setSequenceLength(sequenceLength() + 1);
 }
 
 
-static inline void resetSequence(void) {
-    is_pause = false;
-    is_print_screen_press = false;
-    is_print_screen_release = false;
+static void resetSequence(void) {
+    isPause = false;
+    isPrintScreenPress = false;
+    isPrintScreenRelease = false;
     setSequenceLength(0);
 }
 
 
-static inline Key constructKeyFromCode(unsigned char code) {
-    return (Key) { .code = CODE_TO_KEY_MAP[code % 128], .press = (code <= 128) };
+static Key constructKeyFromCode(unsigned char code) {
+    return (Key) {
+        .code = CODE_TO_KEY_MAP[code % 128],
+        .press = (code <= 128)
+    };
 }
 
 
-static inline Key constructKeyFromCodeMB(unsigned char code) {
-    return (Key) { .code = MBCODE_TO_KEY_MAP[code % 128], .press = (code <= 128) };
+static Key constructKeyFromCodeMB(unsigned char code) {
+    return (Key) {
+        .code = MBCODE_TO_KEY_MAP[code % 128],
+        .press = (code <= 128)
+    };
 }
 
 
-static inline Key constructEmptyKey(void) {
-    return (Key) { .code = KeyCode_None };
+static Key constructEmptyKey(void) {
+    return (Key) {
+        .code = KeyCode_None
+    };
 }
 
 
-static inline Key constructPrintScreenPressKey(void) {
-    return (Key) { .code = KeyCode_PrintScreen, .press = true };
+static Key constructPrintScreenPressKey(void) {
+    return (Key) {
+        .code = KeyCode_PrintScreen,
+        .press = true
+    };
 }
 
 
-static inline Key constructPrintScreenReleaseKey(void) {
-    return (Key) { .code = KeyCode_PrintScreen, .press = false };
+static Key constructPrintScreenReleaseKey(void) {
+    return (Key) {
+        .code = KeyCode_PrintScreen,
+        .press = false
+    };
 }
 
 
-static inline Key constructPauseKey(void) {
-    return (Key) { .code = KeyCode_Pause, .press = true };
+static Key constructPauseKey(void) {
+    return (Key) {
+        .code = KeyCode_Pause,
+        .press = true
+    };
 }
 
 
