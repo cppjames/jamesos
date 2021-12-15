@@ -11,12 +11,12 @@
 #define OFFSET_MASK_HIGHER 0xffffffff00000000UL
 
 typedef struct {
-	uint16_t offset_lowerbits;
+	uint16_t offsetLowerBits;
 	uint16_t selector;
 	uint8_t zero_1;
-	uint8_t type_attr;
-	uint16_t offset_middlebits;
-    uint32_t offset_higherbits;
+	uint8_t typeAttr;
+	uint16_t offsetMiddleBits;
+    uint32_t offsetHigherBits;
     uint32_t zero_2;
 } __attribute__((packed)) IdtEntry;
 
