@@ -9,14 +9,14 @@
 #include <string.h>
 
 unsigned char command[COMMAND_SIZE] = { 0 };
-size_t command_cursor = 0;
-size_t out_cursor_x = 0;
-size_t out_cursor_y = 0;
+size_t commandCursor = 0;
+size_t outCursorX = 0;
+size_t outCursorY = 0;
 
 
 void initShell(void) {
-    out_cursor_x = terminalCursorX();
-    out_cursor_y = terminalCursorY();
+    outCursorX = terminalCursorX();
+    outCursorY = terminalCursorY();
 
     renderCommand();
 
@@ -33,11 +33,11 @@ void initShell(void) {
             switch (ev.key.code) {
             case KeyCode_Backspace:
                 if (!cursorAtStart())
-                    deleteCharacter(command_cursor - 1);
+                    deleteCharacter(commandCursor - 1);
                 break;
             case KeyCode_Delete:
                 if (!cursorAtEnd())
-                    deleteCharacter(command_cursor);
+                    deleteCharacter(commandCursor);
                 break;
             case KeyCode_LeftArrow:
                 moveCursorLeft(1);
@@ -57,12 +57,12 @@ void initShell(void) {
 void addCursorCharacter(unsigned char ch) {
     clearCommand();
 
-    size_t len = strlen((char*)(command + command_cursor)) + 1;
+    size_t len = strlen((char*)(command + commandCursor)) + 1;
     for (size_t current = 0; current < len; current++) {
-        command[command_cursor + len - current] = command[command_cursor + len - current - 1];
+        command[commandCursor + len - current] = command[commandCursor + len - current - 1];
     }
 
-    command[command_cursor++] = ch;
+    command[commandCursor++] = ch;
     renderCommand();
 }
 
@@ -70,10 +70,10 @@ void addCursorCharacter(unsigned char ch) {
 void deleteCharacter(size_t index) {
     clearCommand();
 
-    unsigned char *command_substring = command + index;
-    memmove(command_substring, command_substring + 1, strlen((char*)command_substring) + 1);
-    if (index < command_cursor)
-        command_cursor--;
+    unsigned char *commandSubstring = command + index;
+    memmove(commandSubstring, commandSubstring + 1, strlen((char*)commandSubstring) + 1);
+    if (index < commandCursor)
+        commandCursor--;
 
     renderCommand();
 }
@@ -81,7 +81,7 @@ void deleteCharacter(size_t index) {
 
 void moveCursorLeft(size_t amount) {
     clearCommand();
-    command_cursor = (amount > command_cursor) ? 0 : (command_cursor - amount);
+    commandCursor = (amount > commandCursor) ? 0 : (commandCursor - amount);
     renderCommand();
 }
 
@@ -90,27 +90,27 @@ void moveCursorRight(size_t amount) {
     clearCommand();
 
     size_t len = strlen((char*)command);
-    if (command_cursor + amount > len)
-        command_cursor = len;
+    if (commandCursor + amount > len)
+        commandCursor = len;
     else
-        command_cursor += amount;
+        commandCursor += amount;
 
     renderCommand();
 }
 
 
 inline bool cursorAtStart(void) {
-    return command_cursor == 0;
+    return commandCursor == 0;
 }
 
 
 inline bool cursorAtEnd(void) {
-    return command[command_cursor] == 0;
+    return command[commandCursor] == 0;
 }
 
 
 void clearCommand(void) {
-    terminalMoveCursor(out_cursor_x, out_cursor_y);
+    terminalMoveCursor(outCursorX, outCursorY);
     terminalSetColor(vgaColorEntry(VgaColor_LightGray, VgaColor_Black));
 
     for (size_t current = 0; command[current]; current++) {
@@ -124,10 +124,10 @@ void clearCommand(void) {
 
 
 void renderCommand(void) {
-    terminalMoveCursor(out_cursor_x, out_cursor_y);
+    terminalMoveCursor(outCursorX, outCursorY);
     
     for (size_t current = 0; command[current]; current++) {
-        if (current == command_cursor)
+        if (current == commandCursor)
             terminalSetColor(COLOR_HIGHLIGHT);
         else
             terminalSetColor(COLOR_NORMAL);
@@ -137,7 +137,7 @@ void renderCommand(void) {
         putchar(command[current]);
     }
 
-    if (command[command_cursor] == '\0')
+    if (command[commandCursor] == '\0')
         terminalSetColor(COLOR_HIGHLIGHT);
     else
         terminalSetColor(COLOR_NORMAL);
