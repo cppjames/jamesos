@@ -23,17 +23,17 @@ static void setKeyboardScanCode(void);
 
 static void updateState(Key key);
 static void updateModifiers(Key key);
-static void updateKeySwitches(Key key);
+static void updateKeyToggles(Key key);
 static void sendState(void);
 
 static size_t nextEventQueuePos(size_t pos);
 
-static KeyEvent keyboard_state = {
+static KeyEvent keyboardState = {
     .key = { 0 },
     .flags = 0x0
 };
 
-static EventQueue event_queue = {
+static EventQueue eventQueue = {
 	.buffer = {},
 	.current = 0,
 	.end = 0
@@ -48,18 +48,22 @@ void initKeyboard(void) {
 
 
 void keyboardIrqHandler(void) {
-    unsigned char scan_code = inb(KEYBOARD_PORT);
+    unsigned char scanCode = inb(KEYBOARD_PORT);
 
-    Key key = codeToKey(scan_code);
+    Key key = codeToKey(scanCode);
+
+    // Either the scancode is invalid, or we are in the middle of a multibyte scancode sequence.
     if (key.code == KeyCode_None)
         return;
 
     sendKey(key);
 
+    // Keyboard does not send pause release scancode, so we have to simulate it.
+    // The pause key is assumed to be released as soon as it is pressed.
     if (key.code == KeyCode_Pause) {
-        Key key_release = key;
-        key_release.press = false;
-        sendKey(key_release);
+        Key keyRelease = key;
+        keyRelease.press = false;
+        sendKey(keyRelease);
     }
 }
 
@@ -71,16 +75,16 @@ void sendKey(Key key) {
 
 
 bool isKeyEvent(void) {
-    return event_queue.current != event_queue.end;
+    return eventQueue.current != eventQueue.end;
 }
 
 
 KeyEvent getKeyEvent(void) {
     // There is a key event in the queue
     if (isKeyEvent()) {
-        size_t current = event_queue.current;
-		KeyEvent ev = event_queue.buffer[current];
-		event_queue.current = nextEventQueuePos(current);
+        size_t current = eventQueue.current;
+		KeyEvent ev = eventQueue.buffer[current];
+		eventQueue.current = nextEventQueuePos(current);
 		return ev;
 	}
 
@@ -112,7 +116,7 @@ void setKeyboardScanCode(void) {
 
         unsigned char response = inb(KEYBOARD_PORT);
 
-        // Response is not bad, we can stop now
+        // Request did not fail, we can stop now
         if (response != CHANGE_SCANCODE_SET_FAIL)
             break;
     }
@@ -121,8 +125,8 @@ void setKeyboardScanCode(void) {
 
 void updateState(Key key) {
     updateModifiers(key);
-    updateKeySwitches(key);
-    keyboard_state.key = key;
+    updateKeyToggles(key);
+    keyboardState.key = key;
 }
 
 
@@ -138,25 +142,26 @@ void updateModifiers(Key key) {
 
     // Set modifier on press and clear on release
     if (key.press)
-        keyboard_state.flags |= flag;
+        keyboardState.flags |= flag;
     else
-        keyboard_state.flags &= ~flag;
+        keyboardState.flags &= ~flag;
 }
 
 
-void updateKeySwitches(Key key) {
+void updateKeyToggles(Key key) {
+    // Toggle caps lock flag using bitwise xor
     if (isCapsLock(key) && key.press)
-        keyboard_state.flags ^= KeyFlag_CapsLock;
+        keyboardState.flags ^= KeyFlag_CapsLock;
 }
 
-
+// Push keyboard state to key event queue.
 void sendState(void) {
-    event_queue.buffer[event_queue.end] = keyboard_state;
-	event_queue.end = nextEventQueuePos(event_queue.end);
+    eventQueue.buffer[eventQueue.end] = keyboardState;
+	eventQueue.end = nextEventQueuePos(eventQueue.end);
 }
 
-
-static inline size_t nextEventQueuePos(size_t pos) {
+// Get circular queue index that follows position.
+static size_t nextEventQueuePos(size_t pos) {
 	return (pos + 1) % QUEUE_SIZE;
 }
 
