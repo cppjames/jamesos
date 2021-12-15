@@ -6,10 +6,10 @@
 
 #include <stdint.h>
 
-#define def_excHandler(exc) \
+#define defineExcHandler(exc) \
     void excHandler##exc(void) { exceptionHandler(exc); }
 
-#define def_excHandlerErrorCode(exc) \
+#define defineExcHandlerErrorCode(exc) \
     void excHandler##exc(uint64_t error_code) { (void)error_code; exceptionHandler(exc); }
 
 static const char *exceptions[] = {
@@ -42,25 +42,25 @@ void exceptionHandler(uint64_t exc) {
 }
 
 
-def_excHandler(0);
-def_excHandler(1);
-def_excHandler(2);
-def_excHandler(3);
-def_excHandler(4);
-def_excHandler(5);
-def_excHandler(6);
-def_excHandler(7);
-def_excHandlerErrorCode(8);
-def_excHandler(9);
-def_excHandlerErrorCode(10);
-def_excHandlerErrorCode(11);
-def_excHandlerErrorCode(12);
-def_excHandlerErrorCode(13);
-def_excHandlerErrorCode(14);
-def_excHandler(15);
-def_excHandler(16);
-def_excHandlerErrorCode(17);
-def_excHandler(18);
-def_excHandler(19);
-def_excHandler(20);
-def_excHandlerErrorCode(30);
+defineExcHandler(0);
+defineExcHandler(1);
+defineExcHandler(2);
+defineExcHandler(3);
+defineExcHandler(4);
+defineExcHandler(5);
+defineExcHandler(6);
+defineExcHandler(7);
+defineExcHandlerErrorCode(8);
+defineExcHandler(9);
+defineExcHandlerErrorCode(10);
+defineExcHandlerErrorCode(11);
+defineExcHandlerErrorCode(12);
+defineExcHandlerErrorCode(13);
+defineExcHandlerErrorCode(14);
+defineExcHandler(15);
+defineExcHandler(16);
+defineExcHandlerErrorCode(17);
+defineExcHandler(18);
+defineExcHandler(19);
+defineExcHandler(20);
+defineExcHandlerErrorCode(30);
