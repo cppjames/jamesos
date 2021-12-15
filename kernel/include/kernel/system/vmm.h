@@ -5,13 +5,13 @@
 
 void initPaging(void);
 void map(Vaddr vaddr, Paddr paddr, size_t size, Perms perm, MemoryType mt);
-Decoded decode(Entry entry, bool bottom_level);
+Decoded decode(Entry entry, bool bottomLevel);
 Paddr getRootTable(void);
 
 Vaddr toVaddr(Paddr paddr);
 Paddr toPaddr(Vaddr vaddr);
 
-#define identity_map(addr, args...)     \
+#define identityMap(addr, args...)     \
     do {                                \
         typeof(addr) address = addr;    \
         map(address, address, args);    \
