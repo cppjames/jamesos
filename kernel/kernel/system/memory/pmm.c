@@ -15,6 +15,7 @@
 #define FREE 0
 #define USED 1
 
+// Size of the buffer that will be used to hold allocated frames.
 #define FRAME_BUFFER_SIZE 16
 
 typedef enum MMType {
@@ -41,11 +42,11 @@ typedef struct MMap {
 static void initMemoryMap(void);
 static void initBitmap(void);
 
-uint8_t *page_bitmap = 0;
-MMap memory_map = { 0 };
+uint8_t *pageBitmap = 0;
+MMap memoryMap = { 0 };
 
-Paddr highest_address = 0;
-size_t max_pages = 0;
+Paddr highestAddress = 0;
+size_t maxPages = 0;
 
 
 void initPmm(void) {
@@ -56,35 +57,35 @@ void initPmm(void) {
 }
 
 
-static inline void *getFrame(size_t index) {
+static void *getFrame(size_t index) {
     return (void*)(index * PAGE_SIZE);
 }
 
 
-static inline size_t getFrameIndex(void *frame) {
+static size_t getFrameIndex(void *frame) {
     return (size_t)frame / PAGE_SIZE;
 }
 
 
-static inline bool getFrameStatus(size_t index) {
-    return page_bitmap[index / 8] & (1 << (index % 8));
+static bool getFrameStatus(size_t index) {
+    return pageBitmap[index / 8] & (1 << (index % 8));
 }
 
 
-static inline void setFrameStatus(size_t index, bool status) {
+static void setFrameStatus(size_t index, bool status) {
     size_t bitmask = 1 << (index % 8);
 
     if (status)
-        page_bitmap[index / 8] |= bitmask;
+        pageBitmap[index / 8] |= bitmask;
     else
-        page_bitmap[index / 8] &= ~bitmask;
+        pageBitmap[index / 8] &= ~bitmask;
 }
 
 
 static void *kallocFrameFind(void)
 {
     // Find the first free page frame in bitmap
-    for (size_t i = 0; i < max_pages; i++) {
+    for (size_t i = 0; i < maxPages; i++) {
         if (getFrameStatus(i) == FREE) {
             setFrameStatus(i, USED);
             return getFrame(i);
@@ -96,18 +97,19 @@ static void *kallocFrameFind(void)
 
 
 void *kallocFrame(void) {
-    static void *frame_buffer[FRAME_BUFFER_SIZE] = { 0 };
-    static size_t frame_index = 0;
+    static void *frameBuffer[FRAME_BUFFER_SIZE] = { 0 };
+    static size_t frameIndex = 0;
 
     // Buffer is empty, allocate again
-    if (frame_index == 0)
+    if (frameIndex == 0)
         for (size_t i = 0; i < FRAME_BUFFER_SIZE; i++)
-            frame_buffer[i] = kallocFrameFind();
+            frameBuffer[i] = kallocFrameFind();
 
-    void *frame = frame_buffer[frame_index];
+    // Clear the page frame
+    void *frame = frameBuffer[frameIndex];
     memset(frame, 0, PAGE_SIZE);
 
-    frame_index = (frame_index + 1) % FRAME_BUFFER_SIZE;
+    frameIndex = (frameIndex + 1) % FRAME_BUFFER_SIZE;
     return frame;
 }
 
@@ -118,95 +120,96 @@ void kfreeFrame(void *frame) {
 
 
 static void initMemoryMap(void) {
-    StivaleTagMemmap *const memmap_tag = kinfoGetMemmapTag();
-    memory_map.count = memmap_tag->entries;
-    const size_t mmap_size = sizeof(StivaleMMapEntry) * memmap_tag->entries;
-    const size_t aligned_size = alignUp(mmap_size, PAGE_SIZE);
+    StivaleTagMemmap *const memmapTag = kinfoGetMemmapTag();
+    memoryMap.count = memmapTag->entries;
+    const size_t mmapSize = sizeof(StivaleMMapEntry) * memmapTag->entries;
+    const size_t alignedSize = alignUp(mmapSize, PAGE_SIZE);
 
     // Find some space to store the memory map data structure
-    for (size_t i = 0; i < memmap_tag->entries; i++) {
-        StivaleMMapEntry *entry = &memmap_tag->memmap[i];
+    for (size_t i = 0; i < memmapTag->entries; i++) {
+        StivaleMMapEntry *entry = &memmapTag->memmap[i];
 
         // Found large enough entry, store memory map here
-        if (entry->type == MMType_Usable && entry->length > aligned_size) {
-            memory_map.entries = (MMEntry*)toVaddr(entry->base);
-            entry->base += aligned_size;
-            entry->length -= aligned_size;
+        if (entry->type == MMType_Usable && entry->length > alignedSize) {
+            memoryMap.entries = (MMEntry*)toVaddr(entry->base);
+            entry->base += alignedSize;
+            entry->length -= alignedSize;
             break;
         }
     }
 
-    if (!memory_map.entries)
+    if (!memoryMap.entries)
         kpanic("Memory not sufficient to store memory map structure.");
 
-    for (size_t i = 0; i < memmap_tag->entries; i++) {
-        StivaleMMapEntry entry = memmap_tag->memmap[i];
+    for (size_t i = 0; i < memmapTag->entries; i++) {
+        StivaleMMapEntry entry = memmapTag->memmap[i];
 
-        memory_map.entries[i] = (MMEntry) {
+        memoryMap.entries[i] = (MMEntry) {
             .base   = entry.base,
             .length = entry.length,
             .type   = (MMType)entry.type
         };
     }
 
-    kinfoLog(Log_Info, "Initialized memory map at 0x%016zX", (uint64_t)memory_map.entries);
+    kinfoLog(Log_Info, "Initialized memory map at 0x%016zX", (uint64_t)memoryMap.entries);
 }
 
 
 static void initBitmap(void) {
     // Find the largest usable memory address
-    for (size_t i = 0; i < memory_map.count; i++) {
-        MMEntry *entry = &memory_map.entries[i];
+    for (size_t i = 0; i < memoryMap.count; i++) {
+        MMEntry *entry = &memoryMap.entries[i];
         if (entry->type != MMType_Usable)
             continue;
 
         const Paddr top = entry->base + entry->length;
-        if (top > highest_address)
-            highest_address = top;
+        if (top > highestAddress)
+            highestAddress = top;
     }
 
     // Calculate bitmap size
-    max_pages = highest_address / PAGE_SIZE;
-    const size_t bitmap_size = max_pages / 8;
-    const size_t aligned_size = alignUp(bitmap_size, PAGE_SIZE);
+    maxPages = highestAddress / PAGE_SIZE;
+    const size_t bitmapSize = maxPages / 8;
+    const size_t alignedSize = alignUp(bitmapSize, PAGE_SIZE);
 
-    kinfoLog(Log_Info, "Bitmap size: %zuK", aligned_size / 1024);
+    kinfoLog(Log_Info, "Bitmap size: %zuK", alignedSize / 1024);
 
     // Find some space to store the bitmap
-    for (size_t i = 0; i < memory_map.count; i++) {
-        MMEntry *entry = &memory_map.entries[i];
+    for (size_t i = 0; i < memoryMap.count; i++) {
+        MMEntry *entry = &memoryMap.entries[i];
 
         // Found large enough entry, store bitmap here
-        if (entry->type == MMType_Usable && entry->length > aligned_size) {
-            page_bitmap = (uint8_t*)toVaddr(entry->base);
-            entry->base += aligned_size;
-            entry->length -= aligned_size;
+        if (entry->type == MMType_Usable && entry->length > alignedSize) {
+            pageBitmap = (uint8_t*)toVaddr(entry->base);
+            entry->base += alignedSize;
+            entry->length -= alignedSize;
             break;
         }
     }
 
-    if (!page_bitmap)
+    if (!pageBitmap)
         kpanic("Memory not sufficient to store page bitmap structure.");
 
-    for (size_t page = 0; page < max_pages; page++)
+    for (size_t page = 0; page < maxPages; page++)
         setFrameStatus(page, USED);
 
     // Mark usable memory in bitmap
-    for (size_t i = 0; i < memory_map.count; i++) {
-        MMEntry *entry = &memory_map.entries[i];
+    for (size_t i = 0; i < memoryMap.count; i++) {
+        MMEntry *entry = &memoryMap.entries[i];
 
         if (entry->type != MMType_Usable)
             continue;
 
         // Calculate number of pages to set usable in bitmap
-        Paddr start_paddr = alignUp(entry->base, PAGE_SIZE);
-        size_t start_page = start_paddr / PAGE_SIZE;
-        size_t size_to_set = entry->length - (start_paddr - entry->base);
-        size_t pages_to_set = alignDown(size_to_set, PAGE_SIZE) / PAGE_SIZE;
+        Paddr startPaddr = alignUp(entry->base, PAGE_SIZE);
+        size_t startPage = startPaddr / PAGE_SIZE;
+        size_t sizeToSet = entry->length - (startPaddr - entry->base);
+        size_t pagesToSet = alignDown(sizeToSet, PAGE_SIZE) / PAGE_SIZE;
 
-        for (size_t page = 0; page < pages_to_set; page++)
-            setFrameStatus(start_page + page, FREE);
+        // Set pages as usable
+        for (size_t page = 0; page < pagesToSet; page++)
+            setFrameStatus(startPage + page, FREE);
     }
 
-    kinfoLog(Log_Info, "Loaded bitmap at 0x%016zX", (uint64_t)page_bitmap);
+    kinfoLog(Log_Info, "Loaded bitmap at 0x%016zX", (uint64_t)pageBitmap);
 }
