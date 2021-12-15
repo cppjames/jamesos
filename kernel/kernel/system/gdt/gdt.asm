@@ -28,12 +28,12 @@ reloadSegments:
     push rax
     pushf
     push 0x8
-    push reload_cs
+    push reloadCodeSegment
 
-    ; Reload code segment by far-returning to reload_cs
+    ; Reload code segment by far-returning to reloadCodeSegment
     iretq
 
-reload_cs:
+reloadCodeSegment:
     ; Reload data segment registers
     mov   ax, 0x10
     mov   ds, ax
