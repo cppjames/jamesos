@@ -10,29 +10,29 @@
 static VgaColor getStatusColor(LogStatus status);
 static const char *getStatusText(LogStatus status);
 
-StivaleTagMemmap  *memmap_tag  = 0;
-StivaleTagCmdline *cmdline_tag = 0;
+StivaleTagMemmap  *memmapTag  = 0;
+StivaleTagCmdline *cmdlineTag = 0;
 
 
 inline StivaleTagMemmap *kinfoGetMemmapTag(void) {
-    return memmap_tag;
+    return memmapTag;
 }
 
 
 inline StivaleTagCmdline *kinfoGetCmdlineTag(void) {
-    return cmdline_tag;
+    return cmdlineTag;
 }
 
 
 void kinfoParseStivaleStruct(StivaleStruct *info) {
-    StivaleTag *node = (StivaleTag*)info->tags;
-    while (node) {
-        if (node->identifier == STIVALE2_STRUCT_TAG_MEMMAP_ID)
-            memmap_tag = (typeof(memmap_tag))node;
-        else if (node->identifier == STIVALE2_STRUCT_TAG_CMDLINE_ID)
-            cmdline_tag = (typeof(cmdline_tag))node;
+    StivaleTag *tagNode = (StivaleTag*)info->tags;
+    while (tagNode) {
+        if (tagNode->identifier == STIVALE2_STRUCT_TAG_MEMMAP_ID)
+            memmapTag = (typeof(memmapTag))tagNode;
+        else if (tagNode->identifier == STIVALE2_STRUCT_TAG_CMDLINE_ID)
+            cmdlineTag = (typeof(cmdlineTag))tagNode;
 
-        node = (StivaleTag*)(node->next);
+        tagNode = (StivaleTag*)(tagNode->next);
     }
 }
 
@@ -65,19 +65,19 @@ void kinfoPrintSplash(StivaleStruct *info) {
         putchar(*crt);
     }
 
-    StivaleTag* node = (StivaleTag*)info->tags;
+    StivaleTag* tagNode = (StivaleTag*)info->tags;
 
     // Find firmware tag and print its data
-    while (node) {
-        if (node->identifier == STIVALE2_STRUCT_TAG_FIRMWARE_ID) {
+    while (tagNode) {
+        if (tagNode->identifier == STIVALE2_STRUCT_TAG_FIRMWARE_ID) {
             setcolor(VgaColor_LightGray);
             printf("%s", " Firmware: ");
             setcolor(color3);
-            printf("%s\n", (((StivaleTagFirmware*)node)->flags & 1) ? "BIOS" : "UEFI");
+            printf("%s\n", (((StivaleTagFirmware*)tagNode)->flags & 1) ? "BIOS" : "UEFI");
             break;
         }
 
-        node = (StivaleTag*)(node->next);
+        tagNode = (StivaleTag*)(tagNode->next);
     }
 
     setcolor(VgaColor_LightGray);
@@ -106,11 +106,11 @@ void kinfoLog(LogStatus status, const char *format, ...) {
     va_list va;
     va_start(va, format);
 
-    auto status_color = getStatusColor(status);
-    auto status_test = getStatusText(status);
+    VgaColor statusColor = getStatusColor(status);
+    const char* statusText = getStatusText(status);
 
-    setcolor(status_color);
-    printf("%s", status_test);
+    setcolor(statusColor);
+    printf("%s", statusText);
     
     setcolor(VgaColor_DarkGray);
     printf("%s", " - ");
@@ -127,11 +127,11 @@ void kinfoModuleLog(const char *module, LogStatus status, const char *format, ..
     va_list va;
     va_start(va, format);
 
-    auto status_color = getStatusColor(status);
-    auto status_test = getStatusText(status);
+    VgaColor statusColor = getStatusColor(status);
+    const char* statusText = getStatusText(status);
 
-    setcolor(status_color);
-    printf("%s", status_test);
+    setcolor(statusColor);
+    printf("%s", statusText);
     
     setcolor(VgaColor_DarkGray);
     printf("%s", " :: ");
@@ -151,7 +151,7 @@ void kinfoModuleLog(const char *module, LogStatus status, const char *format, ..
 
 
 static VgaColor getStatusColor(LogStatus status) {
-    static const VgaColor status_colors[] = {
+    static const VgaColor statusColors[] = {
         [Log_Success] = VgaColor_LightGreen,
         [Log_Info] = VgaColor_LightCyan,
         [Log_Warn] = VgaColor_LightBrown,
@@ -159,12 +159,12 @@ static VgaColor getStatusColor(LogStatus status) {
         [Log_Panic] = VgaColor_LightMagenta
     };
 
-    return status_colors[status];
+    return statusColors[status];
 }
 
 
 static const char *getStatusText(LogStatus status) {
-    static const char *status_strings[] = {
+    static const char *statusStrings[] = {
         [Log_Success] = "DONE",
         [Log_Info] = "INFO",
         [Log_Warn] = "WARN",
@@ -172,5 +172,5 @@ static const char *getStatusText(LogStatus status) {
         [Log_Panic] = "PANIC"
     };
 
-    return status_strings[status];
+    return statusStrings[status];
 }
