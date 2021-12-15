@@ -51,7 +51,7 @@ enableNXE:
     push rcx
     push rdx
 
-    ;  Read EFER in EDX:EAX
+    ; Read EFER in EDX:EAX
     mov rcx, IA32_EFER_ID
     rdmsr
 
