@@ -11,10 +11,6 @@ CHARDFLAGS := $(CFLAGS)               	\
 	-std=gnu99                     		\
 	-masm=intel                    		\
 	-fno-pic                       		\
-	-mno-sse                       		\
-	-mno-sse2                      		\
-	-mno-mmx                       		\
-	-mno-80387                     		\
 	-mno-red-zone                  		\
 	-mcmodel=kernel                		\
 	-ffreestanding                 		\
@@ -56,6 +52,7 @@ debug: disk
 	qemu-system-x86_64 $(QDEBUGFLAGS)
 gdb: disk
 	qemu-system-x86_64 $(QGDBFLAGS) & konsole -e gdb $(GDBFLAGS)
+	
 disk: $(KERNEL_HDD)
 
 $(KERNEL_ELF):
