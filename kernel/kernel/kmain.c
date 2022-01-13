@@ -7,6 +7,7 @@
 #include <kernel/shell.h>
 #include <kernel/system/gdt.h>
 #include <kernel/system/idt.h>
+#include <kernel/system/sse.h>
 #include <kernel/system/vmm.h>
 
 #include <stdio.h>
@@ -35,11 +36,14 @@ void kmain(StivaleStruct *info) {
     kinfoParseStivaleStruct(info);
     
     initTerminal();
+
     initGdt();
     initIdt();
-    initKeyboard();
     initPaging();
+    initSse();
+
     initMultitasking();
+    initKeyboard();
 
     kinfoPrintSplash(info);
 
