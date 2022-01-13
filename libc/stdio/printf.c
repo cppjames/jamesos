@@ -35,6 +35,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// User-added headers to remove editor errors
+#include <stddef.h>
+#include <stdarg.h>
+
 #define _putchar putchar
 
 // #define PRINTF_DISABLE_SUPPORT_FLOAT
